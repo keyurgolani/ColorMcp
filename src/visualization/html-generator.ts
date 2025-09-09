@@ -81,7 +81,8 @@ export interface GradientVisualizationData {
 }
 
 export class HTMLGenerator {
-  private templates: Map<string, Handlebars.TemplateDelegate> = new Map();
+  private templates: Map<string, Handlebars.TemplateDelegate<unknown>> =
+    new Map();
 
   constructor() {
     this.registerHelpers();

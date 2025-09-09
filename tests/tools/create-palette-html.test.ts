@@ -378,8 +378,8 @@ describe('create-palette-html tool', () => {
       expect(result.success).toBe(true);
       expect(result.export_formats).toHaveProperty('css');
       expect(result.export_formats?.css).toContain(':root');
-      expect(result.export_formats?.css).toContain('--color-1: #ff0000');
-      expect(result.export_formats?.css).toContain('--color-2: #00ff00');
+      expect(result.export_formats?.css).toContain('--red: #ff0000');
+      expect(result.export_formats?.css).toContain('--lime: #00ff00');
     });
 
     test('should generate JSON export when requested', async () => {

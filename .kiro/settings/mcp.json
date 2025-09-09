@@ -19,7 +19,8 @@
         "create_color_wheel_html",
         "create_gradient_html",
         "simulate_colorblindness",
-        "test_html"
+        "test_html",
+        "simulate_colorblindness"
       ]
     }
   }

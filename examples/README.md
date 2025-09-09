@@ -1,30 +1,22 @@
 # MCP Color Server Examples
 
-This directory contains usage examples and integration patterns for the MCP Color Server.
+This directory contains comprehensive examples, testing documentation, and integration patterns for the MCP Color Server.
 
-## Example Categories
+## Directory Structure
 
-### Basic Usage Examples *(Coming Soon)*
-- Simple color conversions
-- Color analysis workflows
-- Basic palette generation
+```
+examples/
+├── README.md                    # This file
+├── tool-testing/               # Comprehensive tool testing examples
+│   ├── TESTING_SUMMARY.md     # Testing methodology and results
+│   ├── color-conversion/       # Color conversion and analysis examples
+│   ├── accessibility/          # Accessibility compliance examples
+│   ├── palette-generation/     # Palette generation examples
+│   └── visualizations/         # HTML/PNG visualization examples
+└── integration/                # Framework integration examples (coming soon)
+```
 
-### Integration Examples *(Coming Soon)*
-- MCP client configurations
-- Custom tool implementations
-- Error handling patterns
-
-### Advanced Examples *(Coming Soon)*
-- Complex palette generation workflows
-- Accessibility compliance checking
-- Visualization generation
-
-### Framework Integration *(Coming Soon)*
-- React component integration
-- Vue.js integration
-- Node.js server integration
-
-## Quick Start Example
+## Quick Start
 
 ### Basic Color Conversion
 
@@ -33,47 +25,88 @@ This directory contains usage examples and integration patterns for the MCP Colo
 const result = await mcpClient.callTool('convert_color', {
   color: '#FF0000',
   output_format: 'hsl',
-  precision: 2
+  precision: 2,
 });
 
 console.log(result);
-// Output:
-// {
-//   "success": true,
-//   "data": {
-//     "original": "#FF0000",
-//     "converted": "hsl(0, 100%, 50%)",
-//     "format": "hsl",
-//     "precision": 2
-//   },
-//   "metadata": {
-//     "execution_time": 15,
-//     "tool": "convert_color",
-//     "timestamp": "2024-01-01T12:00:00.000Z"
-//   }
-// }
+// Output: { success: true, data: { converted: "hsl(0, 100%, 50%)" } }
 ```
 
-## Running Examples
+## Tool Testing Examples
 
-Examples will be added as the implementation progresses. Each example will include:
+### ✅ Completed Testing (26 use cases)
 
-1. **Setup Instructions**: How to configure the example
-2. **Code Walkthrough**: Explanation of the implementation
-3. **Expected Output**: What results to expect
-4. **Variations**: Different ways to use the functionality
+- **Color Conversion** (10 examples): `convert_color`, `analyze_color`
+- **Accessibility** (10 examples): `check_contrast`, `simulate_colorblindness`
+- **Palette Generation** (5 examples): `generate_harmony_palette`
+- **Visualizations** (1 example): `create_palette_html`
 
-## Contributing Examples
+### 🔄 In Progress
 
-We welcome example contributions! Please see our [Contributing Guide](../CONTRIBUTING.md) for guidelines on:
+- Additional palette generation tools
+- Color wheel and gradient visualizations
+- Utility tools (mixing, sorting, variations)
 
-- Example code style
-- Documentation requirements
-- Testing examples
-- Submitting examples
+## Key Features Demonstrated
+
+### Professional Color Workflows
+
+- **Web Development**: HEX to HSL conversion, Tailwind integration
+- **Mobile Development**: Swift UIColor, Android Color formats
+- **Print Design**: CMYK conversion with high precision
+- **Data Visualization**: LAB color space for perceptual uniformity
+
+### Accessibility Excellence
+
+- **WCAG Compliance**: AA/AAA contrast checking
+- **Color Vision**: Protanopia, deuteranopia, tritanopia simulation
+- **Universal Design**: Color-blind safe palette generation
+
+### Interactive Visualizations
+
+- **HTML5 Compliant**: Semantic markup with ARIA labels
+- **Keyboard Navigation**: Full accessibility support
+- **Export Capabilities**: Multiple format downloads
+- **Responsive Design**: Mobile-first approach
+
+## Performance Benchmarks
+
+| Tool Category      | Avg Response Time | Use Cases Tested |
+| ------------------ | ----------------- | ---------------- |
+| Color Conversion   | 0-3ms             | 10               |
+| Accessibility      | 0-1ms             | 10               |
+| Palette Generation | 0-2ms             | 5                |
+| HTML Visualization | 12ms              | 1                |
+
+## Usage Patterns
+
+Each example includes:
+
+- **Input Parameters**: Complete parameter documentation
+- **Expected Output**: Full response structure
+- **Use Case Context**: Real-world application scenario
+- **Performance Metrics**: Execution time and resource usage
+- **Practical Applications**: How to integrate in projects
+
+## Integration Examples (Coming Soon)
+
+- React component integration
+- Vue.js color picker components
+- Node.js server-side color processing
+- Design system automation
+- CI/CD color validation
+
+## Contributing
+
+We welcome example contributions! Please:
+
+1. Follow existing example structure
+2. Include comprehensive documentation
+3. Test with multiple use cases
+4. Ensure accessibility compliance
 
 ## Support
 
-If you have questions about the examples or need help with integration:
-- [GitHub Issues](https://github.com/your-org/mcp-color-server/issues)
-- [GitHub Discussions](https://github.com/your-org/mcp-color-server/discussions)
+- **Documentation**: See `tool-testing/TESTING_SUMMARY.md` for detailed testing results
+- **Issues**: Report problems or request examples
+- **Discussions**: Share use cases and integration patterns
