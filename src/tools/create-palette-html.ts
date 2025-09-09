@@ -10,7 +10,7 @@ import {
 } from '../visualization/html-generator';
 import { UnifiedColor } from '../color/unified-color';
 import { validateColorInput } from '../validation/schemas';
-import Joi from 'joi';
+import * as Joi from 'joi';
 
 // Parameter validation schema
 const createPaletteHtmlSchema = Joi.object({
@@ -304,7 +304,7 @@ async function createPaletteHtml(
     const html = htmlGenerator.generatePaletteHTML(visualizationData);
 
     // Prepare export formats
-    const exportFormats: Record<string, any> = {};
+    const exportFormats: Record<string, string | object> = {};
 
     if (validatedParams.export_formats?.includes('css')) {
       exportFormats['css'] = generateCSSExport(colors);

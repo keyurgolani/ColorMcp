@@ -412,6 +412,74 @@ describe('create-color-wheel-html tool', () => {
       expect(result.success).toBe(false);
       expect(result.error.code).toBe('INVALID_PARAMETERS');
     });
+
+    test('should reject invalid size values', async () => {
+      const params = { size: 50 }; // Too small
+
+      const result = (await createColorWheelHtmlTool.handler(
+        params
+      )) as ErrorResponse;
+
+      expect(result.success).toBe(false);
+      expect(result.error.code).toBe('INVALID_PARAMETERS');
+    });
+
+    test('should reject extremely large size values', async () => {
+      const params = { size: 2000 }; // Too large
+
+      const result = (await createColorWheelHtmlTool.handler(
+        params
+      )) as ErrorResponse;
+
+      expect(result.success).toBe(false);
+      expect(result.error.code).toBe('INVALID_PARAMETERS');
+    });
+
+    test('should reject invalid highlight colors', async () => {
+      const params = { highlight_colors: ['invalid-color'] };
+
+      const result = (await createColorWheelHtmlTool.handler(
+        params
+      )) as ErrorResponse;
+
+      expect(result.success).toBe(false);
+      expect(result.error.code).toBe('INVALID_COLOR_FORMAT');
+    });
+
+    test('should reject too many highlight colors', async () => {
+      const params = {
+        highlight_colors: Array(20).fill('#FF0000'), // Too many colors
+      };
+
+      const result = (await createColorWheelHtmlTool.handler(
+        params
+      )) as ErrorResponse;
+
+      expect(result.success).toBe(false);
+      expect(result.error.code).toBe('INVALID_PARAMETERS');
+    });
+
+    test('should handle null parameters gracefully', async () => {
+      const params = { highlight_colors: null as any };
+
+      const result = (await createColorWheelHtmlTool.handler(
+        params
+      )) as ErrorResponse;
+
+      expect(result.success).toBe(false);
+      expect(result.error.code).toBe('INVALID_PARAMETERS');
+    });
+
+    test('should handle show_harmony without harmony_type', async () => {
+      const params = { show_harmony: true }; // Missing harmony_type
+
+      const result = (await createColorWheelHtmlTool.handler(
+        params
+      )) as ErrorResponse;
+
+      expect(result.success).toBe(false);
+      expect(result.error.code).toBe('INVALID_PARAMETERS');
+    });
   });
 
   describe('Recommendations', () => {

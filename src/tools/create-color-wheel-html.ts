@@ -9,7 +9,7 @@ import {
 } from '../visualization/html-generator';
 import { UnifiedColor } from '../color/unified-color';
 import { validateColorInput } from '../validation/schemas';
-import Joi from 'joi';
+import * as Joi from 'joi';
 
 // Parameter validation schema
 const createColorWheelHtmlSchema = Joi.object({

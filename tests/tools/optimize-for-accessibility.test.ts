@@ -462,4 +462,90 @@ describe('optimizeForAccessibility', () => {
       }
     });
   });
+
+  describe('Error Handling', () => {
+    test('should handle invalid color format', async () => {
+      const params: OptimizeForAccessibilityParams = {
+        palette: ['invalid-color'],
+        use_cases: ['text'],
+        target_standard: 'WCAG_AA',
+      };
+
+      const result = await optimizeForAccessibility(params);
+      expect(result.success).toBe(false);
+      expect(result.error?.code).toBe('INVALID_COLOR_FORMAT');
+    });
+
+    test('should handle empty palette', async () => {
+      const params: OptimizeForAccessibilityParams = {
+        palette: [],
+        use_cases: ['text'],
+        target_standard: 'WCAG_AA',
+      };
+
+      const result = await optimizeForAccessibility(params);
+      expect(result.success).toBe(false);
+      expect(result.error?.code).toBe('MISSING_PALETTE');
+    });
+
+    test('should handle empty use cases', async () => {
+      const params: OptimizeForAccessibilityParams = {
+        palette: ['#FF0000'],
+        use_cases: [],
+        target_standard: 'WCAG_AA',
+      };
+
+      const result = await optimizeForAccessibility(params);
+      expect(result.success).toBe(false);
+      expect(result.error?.code).toBe('MISSING_USE_CASES');
+    });
+
+    test('should handle invalid use cases', async () => {
+      const params: OptimizeForAccessibilityParams = {
+        palette: ['#FF0000'],
+        use_cases: ['invalid-use-case' as any],
+        target_standard: 'WCAG_AA',
+      };
+
+      const result = await optimizeForAccessibility(params);
+      expect(result.success).toBe(false);
+      expect(result.error?.code).toBe('INVALID_USE_CASES');
+    });
+
+    test('should handle invalid target standard', async () => {
+      const params: OptimizeForAccessibilityParams = {
+        palette: ['#FF0000'],
+        use_cases: ['text'],
+        target_standard: 'INVALID_STANDARD' as any,
+      };
+
+      const result = await optimizeForAccessibility(params);
+      // This might succeed with default values, so just check it doesn't crash
+      expect(result).toBeDefined();
+    });
+
+    test('should handle null palette', async () => {
+      const params: OptimizeForAccessibilityParams = {
+        palette: null as any,
+        use_cases: ['text'],
+        target_standard: 'WCAG_AA',
+      };
+
+      const result = await optimizeForAccessibility(params);
+      expect(result.success).toBe(false);
+      expect(result.error?.code).toBe('MISSING_PALETTE');
+    });
+
+    test('should handle mixed valid and invalid colors', async () => {
+      const params: OptimizeForAccessibilityParams = {
+        palette: ['#FF0000', 'invalid-color', '#00FF00'],
+        use_cases: ['text'],
+        target_standard: 'WCAG_AA',
+      };
+
+      const result = await optimizeForAccessibility(params);
+      expect(result.success).toBe(false);
+      expect(result.error?.code).toBe('INVALID_COLOR_FORMAT');
+    });
+  });
 });

@@ -2,7 +2,7 @@
  * Joi validation schemas for input validation
  */
 
-import Joi from 'joi';
+import * as Joi from 'joi';
 
 // Color format validation - flexible to support multiple input variations
 export const colorSchema = Joi.string().trim().min(1).required().messages({

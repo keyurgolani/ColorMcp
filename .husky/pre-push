@@ -1,13 +1,31 @@
+#!/bin/sh
 echo "🚀 Running pre-push checks..."
 
-# Ensure we're not pushing broken code
-echo "📝 Running TypeScript type checking..."
-npm run type-check
+# CRITICAL QUALITY GUARDRAILS - THESE MUST NEVER BE BYPASSED
+echo "🚨 CRITICAL QUALITY GUARDRAILS ACTIVE"
+echo "⚠️  These checks ensure code quality and prevent broken deployments"
+echo "⚠️  Bypassing these checks is NEVER acceptable"
 
-echo "🧪 Running tests with coverage requirements..."
-npm run test:coverage:check
+# Comprehensive test suite (includes type-check, lint, format-check, and coverage)
+echo "🧪 Running comprehensive test suite..."
+npm test
 
 echo "🏗️  Verifying build..."
 npm run build
 
-echo "✅ All pre-push checks passed! Ready to push."
+# Final validation
+echo "🔍 Final validation - ensuring no quality issues..."
+if ! npm run lint > /dev/null 2>&1; then
+  echo "❌ CRITICAL: Linting errors detected!"
+  echo "⚠️  Fix all linting errors before pushing"
+  exit 1
+fi
+
+if ! npm run type-check > /dev/null 2>&1; then
+  echo "❌ CRITICAL: TypeScript errors detected!"
+  echo "⚠️  Fix all TypeScript errors before pushing"
+  exit 1
+fi
+
+echo "✅ All pre-push checks passed! Code quality verified."
+echo "🎉 Ready to push high-quality code!"

@@ -2,7 +2,7 @@
  * HTML visualization generator using Handlebars templates
  */
 
-import Handlebars from 'handlebars';
+import * as Handlebars from 'handlebars';
 // Import types for color visualization
 
 export interface HTMLGeneratorOptions {
@@ -149,7 +149,7 @@ export class HTMLGenerator {
     );
 
     // Helper for equality check
-    Handlebars.registerHelper('eq', (a: any, b: any) => {
+    Handlebars.registerHelper('eq', (a: unknown, b: unknown) => {
       return a === b;
     });
 

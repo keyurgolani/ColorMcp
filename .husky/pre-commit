@@ -1,6 +1,20 @@
+#!/bin/sh
 echo "🔍 Running pre-commit checks..."
 
+# STRICT QUALITY GUARDRAILS - NEVER BYPASS THESE CHECKS
+echo "⚠️  QUALITY GUARDRAILS ACTIVE - These checks cannot be bypassed"
+
 # Run lint-staged for staged files
+echo "📝 Running linting and formatting on staged files..."
 npm run pre-commit
 
+# Additional safety check - run type checking on all files
+echo "🔍 Running TypeScript type checking..."
+npm run type-check
+
+# Verify no 'any' types or other quality issues
+echo "🔍 Checking for code quality violations..."
+npm run lint
+
 echo "✅ Pre-commit checks passed!"
+echo "⚠️  Remember: Quality checks are mandatory and protect code integrity"

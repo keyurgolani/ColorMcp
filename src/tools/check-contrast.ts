@@ -305,11 +305,16 @@ async function generateAlternatives(
         standard
       );
 
-      const adjustment = {
+      const adjustment: {
+        color: string;
+        contrast_ratio: number;
+        passes: boolean;
+        apca_score?: number;
+      } = {
         color: adjustedFg.hex,
         contrast_ratio: contrastResult.ratio,
         passes: contrastResult.passes,
-      } as any;
+      };
 
       if (contrastResult.apca_score !== undefined) {
         adjustment.apca_score = contrastResult.apca_score;
@@ -337,11 +342,16 @@ async function generateAlternatives(
         standard
       );
 
-      const adjustment = {
+      const adjustment: {
+        color: string;
+        contrast_ratio: number;
+        passes: boolean;
+        apca_score?: number;
+      } = {
         color: adjustedBg.hex,
         contrast_ratio: contrastResult.ratio,
         passes: contrastResult.passes,
-      } as any;
+      };
 
       if (contrastResult.apca_score !== undefined) {
         adjustment.apca_score = contrastResult.apca_score;

@@ -41,18 +41,22 @@ export function createSuccessResponse(
   if (options?.colorSpaceUsed !== undefined) {
     metadata.color_space_used = options.colorSpaceUsed;
     // Also set camelCase version for backward compatibility
-    (metadata as any).colorSpaceUsed = options.colorSpaceUsed;
+    (metadata as unknown as Record<string, unknown>)['colorSpaceUsed'] =
+      options.colorSpaceUsed;
   }
   if (options?.detectedInputFormat !== undefined) {
-    (metadata as any).detectedInputFormat = options.detectedInputFormat;
+    (metadata as unknown as Record<string, unknown>)['detectedInputFormat'] =
+      options.detectedInputFormat;
   }
   if (options?.colorProperties !== undefined) {
-    (metadata as any).colorProperties = options.colorProperties;
+    (metadata as unknown as Record<string, unknown>)['colorProperties'] =
+      options.colorProperties;
   }
   if (options?.accessibilityNotes !== undefined) {
     metadata.accessibility_notes = options.accessibilityNotes;
     // Also set camelCase version for backward compatibility
-    (metadata as any).accessibilityNotes = options.accessibilityNotes;
+    (metadata as unknown as Record<string, unknown>)['accessibilityNotes'] =
+      options.accessibilityNotes;
   }
   if (options?.recommendations !== undefined) {
     metadata.recommendations = options.recommendations;

@@ -547,6 +547,50 @@ describe('convert_color tool', () => {
     test('should handle invalid variable names', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
+        output_format: 'css-var',
+        variable_name: '123invalid',
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    test('should handle malformed color values with specific error messages', async () => {
+      const result = await convertColorTool.handler({
+        color: 'rgb(300, -50, 999)',
+        output_format: 'hex',
+      });
+
+      // This color is actually valid (clamped values), so it should succeed
+      expect(result.success).toBe(true);
+    });
+
+    test('should handle empty color string', async () => {
+      const result = await convertColorTool.handler({
+        color: '',
+        output_format: 'hex',
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+    });
+
+    test('should handle unsupported output format with suggestions', async () => {
+      const result = await convertColorTool.handler({
+        color: '#FF0000',
+        output_format: 'unsupported' as any,
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error.suggestions).toContain(
+        'Check the input format and try again'
+      );
+    });
+
+    test('should handle generic parsing errors', async () => {
+      const result = await convertColorTool.handler({
+        color: 'hsl(invalid, values, here)',
         output_format: 'hex',
         variable_name: '123invalid',
       });

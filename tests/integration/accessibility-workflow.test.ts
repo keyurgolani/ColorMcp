@@ -140,7 +140,9 @@ describe('Accessibility Workflow Integration', () => {
       if (colorblindSim.success) {
         // Should have a valid summary
         expect(colorblindSim.data.summary).toBeDefined();
-        expect(typeof colorblindSim.data.summary.colors_affected).toBe('number');
+        expect(typeof colorblindSim.data.summary.colors_affected).toBe(
+          'number'
+        );
       }
 
       // Step 3: Optimize the palette
@@ -156,9 +158,9 @@ describe('Accessibility Workflow Integration', () => {
       if (optimized.success) {
         // Should show improvement or at least complete successfully
         expect(optimized.data.summary).toBeDefined();
-        expect(optimized.data.summary.compliance_rate_after).toBeGreaterThanOrEqual(
-          optimized.data.summary.compliance_rate_before
-        );
+        expect(
+          optimized.data.summary.compliance_rate_after
+        ).toBeGreaterThanOrEqual(optimized.data.summary.compliance_rate_before);
 
         // Step 4: Verify improvements with contrast checks
         const optimizedColors = optimized.data.optimization_results
@@ -489,7 +491,7 @@ describe('Accessibility Workflow Integration', () => {
       expect(colorblindResult).toBeDefined();
       expect(optimizationResult).toBeDefined();
       expect(endTime - startTime).toBeLessThan(5000); // Should complete within 5 seconds
-      
+
       // If they succeed, they should have the expected structure
       if (colorblindResult.success) {
         expect(colorblindResult.data).toBeDefined();

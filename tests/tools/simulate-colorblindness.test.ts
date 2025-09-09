@@ -348,4 +348,104 @@ describe('simulateColorblindness', () => {
       expect(result.metadata).toHaveProperty('recommendations');
     });
   });
+
+  describe('Error Handling', () => {
+    test('should handle invalid color format', async () => {
+      const params: SimulateColorblindnessParams = {
+        colors: ['invalid-color'],
+        type: 'protanopia',
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(false);
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error?.code).toBe('INVALID_COLOR_FORMAT');
+    });
+
+    test('should handle empty colors array', async () => {
+      const params: SimulateColorblindnessParams = {
+        colors: [],
+        type: 'protanopia',
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(false);
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error?.code).toBe('MISSING_COLORS');
+    });
+
+    test('should handle invalid severity values', async () => {
+      const params: SimulateColorblindnessParams = {
+        colors: ['#FF0000'],
+        type: 'protanopia',
+        severity: 150, // Invalid: > 100
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(false);
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error?.code).toBe('INVALID_SEVERITY');
+    });
+
+    test('should handle negative severity values', async () => {
+      const params: SimulateColorblindnessParams = {
+        colors: ['#FF0000'],
+        type: 'protanopia',
+        severity: -10,
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(false);
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error?.code).toBe('INVALID_SEVERITY');
+    });
+
+    test('should handle mixed valid and invalid colors', async () => {
+      const params: SimulateColorblindnessParams = {
+        colors: ['#FF0000', 'invalid-color', '#00FF00'],
+        type: 'protanopia',
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(false);
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error?.code).toBe('INVALID_COLOR_FORMAT');
+    });
+
+    test('should handle null colors array', async () => {
+      const params: SimulateColorblindnessParams = {
+        colors: null as any,
+        type: 'protanopia',
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(false);
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error?.code).toBe('MISSING_COLORS');
+    });
+
+    test('should handle invalid colorblindness type', async () => {
+      const params: SimulateColorblindnessParams = {
+        colors: ['#FF0000'],
+        type: 'invalid-type' as any,
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(false);
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error?.code).toBe('INVALID_DEFICIENCY_TYPE');
+    });
+
+    test('should handle extremely large colors array', async () => {
+      const largeArray = Array(1000).fill('#FF0000');
+      const params: SimulateColorblindnessParams = {
+        colors: largeArray,
+        type: 'protanopia',
+      };
+
+      const result = await simulateColorblindness(params);
+      // This might succeed, so just check it doesn't crash
+      expect(result).toBeDefined();
+    });
+  });
 });

@@ -92,5 +92,211 @@ describe('ColorServer', () => {
       const nonExistentTool = toolRegistry.getTool('non-existent-tool');
       expect(nonExistentTool).toBeUndefined();
     });
+
+    it('should handle server startup errors', async () => {
+      // Mock the server's connect method to throw error
+      jest
+        .spyOn(server['server'], 'connect')
+        .mockRejectedValue(new Error('Connection failed'));
+
+      await expect(server.start()).rejects.toThrow('Connection failed');
+    });
+  });
+
+  describe('request handlers', () => {
+    let mockServer: any;
+
+    beforeEach(() => {
+      // Access the internal server for testing request handlers
+      mockServer = (server as any).server;
+    });
+
+    it('should handle list tools request', async () => {
+      // Find the list tools handler
+      const handlers = mockServer.setRequestHandler.mock.calls;
+      const listToolsHandler = handlers.find(
+        ([schema]: [unknown]) =>
+          schema ===
+          require('@modelcontextprotocol/sdk/types.js').ListToolsRequestSchema
+      )?.[1];
+
+      expect(listToolsHandler).toBeDefined();
+
+      const result = await listToolsHandler();
+      expect(result.tools).toBeDefined();
+      expect(result.tools.length).toBeGreaterThan(0);
+      expect(result.tools[0]).toHaveProperty('name');
+      expect(result.tools[0]).toHaveProperty('description');
+      expect(result.tools[0]).toHaveProperty('inputSchema');
+    });
+
+    it('should handle call tool request for existing tool', async () => {
+      // Find the call tool handler
+      const handlers = mockServer.setRequestHandler.mock.calls;
+      const callToolHandler = handlers.find(
+        ([schema]: [unknown]) =>
+          schema ===
+          require('@modelcontextprotocol/sdk/types.js').CallToolRequestSchema
+      )?.[1];
+
+      expect(callToolHandler).toBeDefined();
+
+      const request = {
+        params: {
+          name: 'convert_color',
+          arguments: {
+            color: '#FF0000',
+            output_format: 'rgb',
+          },
+        },
+      };
+
+      const result = await callToolHandler(request);
+      expect(result.content).toBeDefined();
+      expect(result.content[0].type).toBe('text');
+
+      const response = JSON.parse(result.content[0].text);
+      expect(response.success).toBe(true);
+    });
+
+    it('should handle call tool request for non-existent tool', async () => {
+      // Find the call tool handler
+      const handlers = mockServer.setRequestHandler.mock.calls;
+      const callToolHandler = handlers.find(
+        ([schema]: [unknown]) =>
+          schema ===
+          require('@modelcontextprotocol/sdk/types.js').CallToolRequestSchema
+      )?.[1];
+
+      expect(callToolHandler).toBeDefined();
+
+      const request = {
+        params: {
+          name: 'non-existent-tool',
+          arguments: {},
+        },
+      };
+
+      const result = await callToolHandler(request);
+      expect(result.content).toBeDefined();
+      expect(result.content[0].type).toBe('text');
+
+      const response = JSON.parse(result.content[0].text);
+      expect(response.success).toBe(false);
+      expect(response.error.code).toBe('TOOL_NOT_FOUND');
+      expect(response.error.suggestions).toBeDefined();
+    });
+
+    it('should handle call tool request with execution error', async () => {
+      // Mock a tool that throws an error
+      const mockTool = {
+        name: 'convert_color',
+        description: 'Test tool',
+        parameters: {},
+        handler: jest.fn().mockRejectedValue(new Error('Test error')),
+      };
+
+      // Temporarily replace the tool
+      jest.spyOn(toolRegistry, 'getTool').mockReturnValue(mockTool);
+
+      // Find the call tool handler
+      const handlers = mockServer.setRequestHandler.mock.calls;
+      const callToolHandler = handlers.find(
+        ([schema]: [unknown]) =>
+          schema ===
+          require('@modelcontextprotocol/sdk/types.js').CallToolRequestSchema
+      )?.[1];
+
+      expect(callToolHandler).toBeDefined();
+
+      const request = {
+        params: {
+          name: 'convert_color',
+          arguments: {
+            color: '#FF0000',
+            output_format: 'rgb',
+          },
+        },
+      };
+
+      const result = await callToolHandler(request);
+      expect(result.content).toBeDefined();
+      expect(result.content[0].type).toBe('text');
+
+      const response = JSON.parse(result.content[0].text);
+      expect(response.success).toBe(false);
+      expect(response.error.code).toBe('EXECUTION_ERROR');
+      expect(response.metadata.execution_time).toBeDefined();
+
+      // Restore original implementation
+      jest.restoreAllMocks();
+    });
+
+    it('should handle call tool request with no arguments', async () => {
+      // Find the call tool handler
+      const handlers = mockServer.setRequestHandler.mock.calls;
+      const callToolHandler = handlers.find(
+        ([schema]: [unknown]) =>
+          schema ===
+          require('@modelcontextprotocol/sdk/types.js').CallToolRequestSchema
+      )?.[1];
+
+      expect(callToolHandler).toBeDefined();
+
+      const request = {
+        params: {
+          name: 'convert_color',
+          // No arguments provided
+        },
+      };
+
+      const result = await callToolHandler(request);
+      expect(result.content).toBeDefined();
+      expect(result.content[0].type).toBe('text');
+
+      const response = JSON.parse(result.content[0].text);
+      // Should handle missing arguments gracefully
+      expect(response).toBeDefined();
+    });
+
+    it('should include error details in development mode', async () => {
+      const originalEnv = process.env['NODE_ENV'];
+      process.env['NODE_ENV'] = 'development';
+
+      // Mock a tool that throws an error
+      const mockTool = {
+        name: 'convert_color',
+        description: 'Test tool',
+        parameters: {},
+        handler: jest.fn().mockRejectedValue(new Error('Detailed test error')),
+      };
+
+      jest.spyOn(toolRegistry, 'getTool').mockReturnValue(mockTool);
+
+      // Find the call tool handler
+      const handlers = mockServer.setRequestHandler.mock.calls;
+      const callToolHandler = handlers.find(
+        ([schema]: [unknown]) =>
+          schema ===
+          require('@modelcontextprotocol/sdk/types.js').CallToolRequestSchema
+      )?.[1];
+
+      const request = {
+        params: {
+          name: 'convert_color',
+          arguments: {},
+        },
+      };
+
+      const result = await callToolHandler(request);
+      const response = JSON.parse(result.content[0].text);
+
+      expect(response.success).toBe(false);
+      expect(response.error.details).toBe('Detailed test error');
+
+      // Restore environment
+      process.env['NODE_ENV'] = originalEnv;
+      jest.restoreAllMocks();
+    });
   });
 });

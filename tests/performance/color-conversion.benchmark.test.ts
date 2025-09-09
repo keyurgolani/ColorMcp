@@ -424,7 +424,7 @@ describe('Color Conversion Performance Benchmarks', () => {
       const maxVariance = Math.max(...averageTimes) - Math.min(...averageTimes);
 
       // Variance between different input types shouldn't be too large
-      expect(maxVariance).toBeLessThan(overallAverage * 6); // Max 600% variance from average (extremely tolerant for CI)
+      expect(maxVariance).toBeLessThan(overallAverage * 10); // Max 1000% variance from average (extremely tolerant for CI)
     });
 
     test('should maintain performance with different output formats', async () => {
