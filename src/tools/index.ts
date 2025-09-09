@@ -42,6 +42,12 @@ export const toolRegistry = new ToolRegistry();
 import { analyzeColorTool } from './analyze-color';
 import { checkContrastTool } from './check-contrast';
 
+// Import and register palette generation tools
+import { generateHarmonyPaletteTool } from './generate-harmony-palette';
+
 // Register analysis tools
 toolRegistry.registerTool(analyzeColorTool);
 toolRegistry.registerTool(checkContrastTool);
+
+// Register palette generation tools
+toolRegistry.registerTool(generateHarmonyPaletteTool);

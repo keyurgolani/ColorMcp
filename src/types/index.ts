@@ -25,6 +25,13 @@ export interface AccessibilityInfo {
   colorBlindSafe: boolean;
 }
 
+export interface ToolHandler {
+  name: string;
+  description: string;
+  parameters: Record<string, unknown>;
+  handler: (params: unknown) => Promise<ToolResponse | ErrorResponse>;
+}
+
 export interface ToolResponse {
   success: boolean;
   data: unknown;
@@ -51,6 +58,9 @@ export interface ResponseMetadata {
   recommendations?: string[];
   colorSpaceUsed?: string;
   accessibilityNotes?: string[];
+  baseColor?: string;
+  harmonyType?: string;
+  colorCount?: number;
 }
 
 export interface ErrorResponse {
