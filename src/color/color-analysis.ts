@@ -380,11 +380,13 @@ export class ColorAnalyzer {
   static checkContrast(
     foreground: UnifiedColor,
     background: UnifiedColor,
-    textSize: 'normal' | 'large' = 'normal'
+    textSize: 'normal' | 'large' = 'normal',
+    standard: 'WCAG_AA' | 'WCAG_AAA' | 'APCA' = 'WCAG_AA'
   ): {
     ratio: number;
     wcag_aa: boolean;
     wcag_aaa: boolean;
+    apca_score?: number;
     passes: boolean;
   } {
     const fgLuminance = this.calculateRelativeLuminance(foreground.rgb);
@@ -399,11 +401,101 @@ export class ColorAnalyzer {
     const wcagAA = ratio >= aaThreshold;
     const wcagAAA = ratio >= aaaThreshold;
     
-    return {
+    let passes = wcagAA;
+    let apcaScore: number | undefined;
+    
+    // Calculate APCA score if requested
+    if (standard === 'APCA') {
+      apcaScore = this.calculateAPCA(foreground, background);
+      // APCA passing criteria (simplified - actual APCA has more complex rules)
+      const apcaThreshold = textSize === 'large' ? 60 : 75;
+      passes = Math.abs(apcaScore) >= apcaThreshold;
+    } else if (standard === 'WCAG_AAA') {
+      passes = wcagAAA;
+    }
+    
+    const result: {
+      ratio: number;
+      wcag_aa: boolean;
+      wcag_aaa: boolean;
+      apca_score?: number;
+      passes: boolean;
+    } = {
       ratio: Math.round(ratio * 100) / 100,
       wcag_aa: wcagAA,
       wcag_aaa: wcagAAA,
-      passes: wcagAA,
+      passes,
+    };
+    
+    if (apcaScore !== undefined) {
+      result.apca_score = apcaScore;
+    }
+    
+    return result;
+  }
+
+  /**
+   * Calculate APCA (Advanced Perceptual Contrast Algorithm) score
+   * Based on APCA 0.0.98G specification
+   */
+  private static calculateAPCA(foreground: UnifiedColor, background: UnifiedColor): number {
+    // Convert to linear RGB
+    const fgLinear = this.sRGBtoLinear(foreground.rgb);
+    const bgLinear = this.sRGBtoLinear(background.rgb);
+    
+    // Calculate luminance using APCA coefficients
+    const fgLum = 0.2126729 * fgLinear.r + 0.7151522 * fgLinear.g + 0.0721750 * fgLinear.b;
+    const bgLum = 0.2126729 * bgLinear.r + 0.7151522 * bgLinear.g + 0.0721750 * bgLinear.b;
+    
+    // APCA constants
+    const normBG = 0.56;
+    const normTXT = 0.57;
+    const revTXT = 0.62;
+    const revBG = 0.65;
+    
+    // Determine polarity and calculate contrast
+    let contrast: number;
+    
+    if (bgLum > fgLum) {
+      // Light background, dark text
+      const bgY = Math.pow(bgLum, normBG);
+      const fgY = Math.pow(fgLum, normTXT);
+      contrast = (bgY - fgY) * 1.14;
+    } else {
+      // Dark background, light text
+      const bgY = Math.pow(bgLum, revBG);
+      const fgY = Math.pow(fgLum, revTXT);
+      contrast = (bgY - fgY) * 1.14;
+    }
+    
+    // Apply scaling and clamping
+    if (Math.abs(contrast) < 0.1) {
+      contrast = 0;
+    } else {
+      contrast = contrast < 0 ? 
+        contrast - 0.027 : 
+        contrast - 0.027;
+    }
+    
+    // Convert to Lc (lightness contrast) percentage
+    return Math.round(contrast * 100 * 100) / 100;
+  }
+
+  /**
+   * Convert sRGB to linear RGB for APCA calculations
+   */
+  private static sRGBtoLinear(rgb: { r: number; g: number; b: number }): { r: number; g: number; b: number } {
+    const linearize = (channel: number): number => {
+      const normalized = channel / 255;
+      return normalized <= 0.04045 ? 
+        normalized / 12.92 : 
+        Math.pow((normalized + 0.055) / 1.055, 2.4);
+    };
+    
+    return {
+      r: linearize(rgb.r),
+      g: linearize(rgb.g),
+      b: linearize(rgb.b)
     };
   }
 }

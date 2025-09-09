@@ -20,11 +20,13 @@ export interface CheckContrastResponse {
   foreground: string;
   background: string;
   contrast_ratio: number;
+  apca_score?: number;
   text_size: 'normal' | 'large';
   standard: string;
   compliance: {
     wcag_aa: boolean;
     wcag_aaa: boolean;
+    apca_passes?: boolean;
     passes: boolean;
   };
   recommendations: string[];
@@ -32,11 +34,13 @@ export interface CheckContrastResponse {
     foreground_adjustments: Array<{
       color: string;
       contrast_ratio: number;
+      apca_score?: number;
       passes: boolean;
     }>;
     background_adjustments: Array<{
       color: string;
       contrast_ratio: number;
+      apca_score?: number;
       passes: boolean;
     }>;
   } | undefined;
@@ -114,7 +118,7 @@ export async function checkContrast(params: CheckContrastParams): Promise<ToolRe
     const standard = params.standard || 'WCAG_AA';
 
     // Check contrast
-    const contrastResult = ColorAnalyzer.checkContrast(foregroundColor, backgroundColor, textSize);
+    const contrastResult = ColorAnalyzer.checkContrast(foregroundColor, backgroundColor, textSize, standard);
 
     // Generate recommendations
     const recommendations: string[] = [];
@@ -168,14 +172,26 @@ export async function checkContrast(params: CheckContrastParams): Promise<ToolRe
       contrast_ratio: contrastResult.ratio,
       text_size: textSize,
       standard,
-      compliance: {
-        wcag_aa: contrastResult.wcag_aa,
-        wcag_aaa: contrastResult.wcag_aaa,
-        passes: contrastResult.passes,
-      },
+      compliance: (() => {
+        const compliance: CheckContrastResponse['compliance'] = {
+          wcag_aa: contrastResult.wcag_aa,
+          wcag_aaa: contrastResult.wcag_aaa,
+          passes: contrastResult.passes,
+        };
+        
+        if (standard === 'APCA') {
+          compliance.apca_passes = contrastResult.passes;
+        }
+        
+        return compliance;
+      })(),
       recommendations,
       alternative_combinations: alternativeCombinations,
     };
+    
+    if (contrastResult.apca_score !== undefined) {
+      responseData.apca_score = contrastResult.apca_score;
+    }
 
     const executionTime = Date.now() - startTime;
 
@@ -256,11 +272,17 @@ async function generateAlternatives(
       const adjustedFg = UnifiedColor.fromHsl(fgHsl.h, fgHsl.s, newLightness);
       const contrastResult = ColorAnalyzer.checkContrast(adjustedFg, background, textSize);
       
-      foregroundAdjustments.push({
+      const adjustment = {
         color: adjustedFg.hex,
         contrast_ratio: contrastResult.ratio,
         passes: contrastResult.passes,
-      });
+      } as any;
+      
+      if (contrastResult.apca_score !== undefined) {
+        adjustment.apca_score = contrastResult.apca_score;
+      }
+      
+      foregroundAdjustments.push(adjustment);
     } catch {
       // Skip invalid color combinations
     }
@@ -277,11 +299,17 @@ async function generateAlternatives(
       const adjustedBg = UnifiedColor.fromHsl(bgHsl.h, bgHsl.s, newLightness);
       const contrastResult = ColorAnalyzer.checkContrast(foreground, adjustedBg, textSize);
       
-      backgroundAdjustments.push({
+      const adjustment = {
         color: adjustedBg.hex,
         contrast_ratio: contrastResult.ratio,
         passes: contrastResult.passes,
-      });
+      } as any;
+      
+      if (contrastResult.apca_score !== undefined) {
+        adjustment.apca_score = contrastResult.apca_score;
+      }
+      
+      backgroundAdjustments.push(adjustment);
     } catch {
       // Skip invalid color combinations
     }
