@@ -70,6 +70,12 @@ import { createColorComparisonPngTool } from './create-color-comparison-png';
 import { generateThemeTool } from './generate-theme';
 import { generateSemanticColorsTool } from './generate-semantic-colors';
 
+// Import color utility tools
+import { mixColorsTool } from './mix-colors';
+import { generateColorVariationsTool } from './generate-color-variations';
+import { sortColorsTool } from './sort-colors';
+import { analyzeColorCollectionTool } from './analyze-color-collection';
+
 // Import test tool
 import { testHtmlTool } from './test-html';
 
@@ -104,6 +110,12 @@ toolRegistry.registerTool(createColorComparisonPngTool);
 // Register theme generation tools
 toolRegistry.registerTool(generateThemeTool);
 toolRegistry.registerTool(generateSemanticColorsTool);
+
+// Register color utility tools
+toolRegistry.registerTool(mixColorsTool);
+toolRegistry.registerTool(generateColorVariationsTool);
+toolRegistry.registerTool(sortColorsTool);
+toolRegistry.registerTool(analyzeColorCollectionTool);
 
 // Register test tool
 toolRegistry.registerTool(testHtmlTool);

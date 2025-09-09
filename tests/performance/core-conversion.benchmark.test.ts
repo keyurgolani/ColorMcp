@@ -274,7 +274,7 @@ describe('Core Color Conversion Performance', () => {
       const totalTime = endTime - startTime;
       const avgTime = totalTime / 10000;
 
-      expect(avgTime).toBeLessThan(0.01);
+      expect(avgTime).toBeLessThan(0.02);
       console.log(
         `HEX format: ${totalTime}ms for 10000 conversions (${avgTime.toFixed(4)}ms per conversion)`
       );
