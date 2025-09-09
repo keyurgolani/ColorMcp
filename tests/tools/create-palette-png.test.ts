@@ -168,6 +168,20 @@ describe('create_palette_png tool', () => {
 
       expect(result.success).toBe(true);
     });
+
+    it('should require background_color when background is custom', async () => {
+      const result = await createPalettePngTool.handler({
+        palette: ['#FF0000'],
+        background: 'custom',
+        // No background_color provided - should be required
+      });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.code).toBe('INVALID_PARAMETERS');
+        expect(result.error.message).toContain('background_color');
+      }
+    });
   });
 
   describe('performance and file size', () => {

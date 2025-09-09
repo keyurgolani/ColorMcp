@@ -373,6 +373,12 @@ describe('create-color-wheel-html tool', () => {
 
       expect(result.success).toBe(true);
       expect(endTime - startTime).toBeLessThan(3000); // Should handle large wheels
+
+      // Should recommend performance consideration for large wheels
+      const successResult = result as ToolResponse;
+      expect(successResult.metadata.recommendations).toContain(
+        'Large color wheels may impact performance on mobile devices'
+      );
     });
   });
 

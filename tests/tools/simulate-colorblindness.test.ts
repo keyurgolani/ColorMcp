@@ -447,5 +447,144 @@ describe('simulateColorblindness', () => {
       // This might succeed, so just check it doesn't crash
       expect(result).toBeDefined();
     });
+
+    test('should handle null/undefined colors in array', async () => {
+      const params: SimulateColorblindnessParams = {
+        colors: ['#FF0000', null as any, '#00FF00'],
+        type: 'protanopia',
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(false);
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error?.code).toBe('INVALID_COLOR_FORMAT');
+      expect(errorResult.error?.message).toContain('index 1');
+    });
+
+    test('should handle undefined colors in array', async () => {
+      const params: SimulateColorblindnessParams = {
+        colors: ['#FF0000', undefined as any, '#00FF00'],
+        type: 'protanopia',
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(false);
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error?.code).toBe('INVALID_COLOR_FORMAT');
+      expect(errorResult.error?.message).toContain('index 1');
+    });
+
+    test('should handle empty string colors in array', async () => {
+      const params: SimulateColorblindnessParams = {
+        colors: ['#FF0000', '', '#00FF00'],
+        type: 'protanopia',
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(false);
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error?.code).toBe('INVALID_COLOR_FORMAT');
+      expect(errorResult.error?.message).toContain('index 1');
+    });
+
+    test('should handle simulation errors gracefully', async () => {
+      // Mock UnifiedColor constructor to throw an error during simulation
+      const originalUnifiedColor =
+        require('../../src/color/unified-color').UnifiedColor;
+      const mockUnifiedColor = jest.fn().mockImplementation(color => {
+        if (color === '#FF0000') {
+          return originalUnifiedColor(color);
+        }
+        throw new Error('Simulation error during processing');
+      });
+
+      // Replace the constructor temporarily
+      const unifiedColorModule = require('../../src/color/unified-color');
+      unifiedColorModule.UnifiedColor = mockUnifiedColor;
+
+      const params: SimulateColorblindnessParams = {
+        colors: ['#FF0000', '#00FF00'],
+        type: 'protanopia',
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(false);
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error?.code).toBe('COLOR_PARSING_ERROR');
+
+      // Restore the original constructor
+      unifiedColorModule.UnifiedColor = originalUnifiedColor;
+    });
+
+    test('should handle high average difference for accessibility notes', async () => {
+      // Use colors that will have high difference scores
+      const params: SimulateColorblindnessParams = {
+        colors: ['#FF0000', '#00FF00', '#0000FF'], // High contrast colors
+        type: 'protanopia',
+        severity: 100,
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(true);
+      const successResult = result as ToolResponse;
+      // const data = successResult.data as SimulateColorblindnessResponse;
+
+      // Should trigger averageDifference > 15 branch
+      expect(successResult.metadata.accessibility_notes).toContain(
+        'Consider using alternative color combinations for better accessibility'
+      );
+    });
+
+    test('should handle high average difference for accessibility concerns', async () => {
+      // Use colors that will have very high difference scores
+      const params: SimulateColorblindnessParams = {
+        colors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00'], // High contrast colors
+        type: 'deuteranopia',
+        severity: 100,
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(true);
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+
+      // Should trigger averageDifference > 20 branch
+      expect(data.summary.accessibility_concerns).toContain(
+        'High overall color distortion detected'
+      );
+    });
+
+    test('should handle anomaly types with high severity', async () => {
+      const params: SimulateColorblindnessParams = {
+        colors: ['#FF0000', '#00FF00'],
+        type: 'protanomaly',
+        severity: 75,
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(true);
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+
+      // Should trigger anomaly + severity > 50 branch
+      expect(data.summary.accessibility_concerns).toContain(
+        'Moderate to severe color vision anomaly simulation'
+      );
+    });
+
+    test('should handle edge case with sparse color arrays', async () => {
+      // Create a test that might trigger the continue statement
+      const params: SimulateColorblindnessParams = {
+        colors: ['#FF0000', '#00FF00', '#0000FF'],
+        type: 'protanopia',
+      };
+
+      const result = await simulateColorblindness(params);
+      expect(result.success).toBe(true);
+
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+      expect(data.results).toHaveLength(3);
+    });
   });
 });

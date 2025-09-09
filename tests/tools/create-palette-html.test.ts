@@ -238,6 +238,22 @@ describe('create-palette-html tool', () => {
       expect(result.visualizations?.html).toContain('wcag-badge');
     });
 
+    test('should include accessibility information when enabled', async () => {
+      const params = {
+        palette: ['#FF0000', '#000000'],
+        accessibility_info: true,
+      };
+
+      const result = (await createPaletteHtmlTool.handler(
+        params
+      )) as ToolResponse;
+
+      expect(result.success).toBe(true);
+      expect(result.visualizations?.html).toContain('accessibility-info');
+      expect(result.visualizations?.html).toContain('contrast-ratio');
+      expect(result.visualizations?.html).toContain('wcag-badge');
+    });
+
     test('should include proper ARIA labels', async () => {
       const params = {
         palette: ['#FF0000'],
@@ -396,6 +412,47 @@ describe('create-palette-html tool', () => {
       expect(result.export_formats).toHaveProperty('json');
       expect(result.export_formats?.json).toHaveProperty('palette');
       expect(result.export_formats?.json).toHaveProperty('metadata');
+    });
+  });
+
+  describe('Recommendations', () => {
+    test('should recommend fewer colors for large palettes', async () => {
+      const params = {
+        palette: Array.from(
+          { length: 15 },
+          (_, i) => `hsl(${i * 24}, 70%, 50%)`
+        ), // 15 colors > 10
+      };
+
+      const result = (await createPaletteHtmlTool.handler(
+        params
+      )) as ToolResponse;
+
+      expect(result.success).toBe(true);
+      const successResult = result as ToolResponse;
+      expect(successResult.metadata.recommendations).toContain(
+        'Consider using fewer colors for better visual clarity'
+      );
+    });
+
+    test('should recommend fewer colors for circular layout with many colors', async () => {
+      const params = {
+        palette: Array.from(
+          { length: 12 },
+          (_, i) => `hsl(${i * 30}, 70%, 50%)`
+        ), // 12 colors > 8
+        layout: 'circular',
+      };
+
+      const result = (await createPaletteHtmlTool.handler(
+        params
+      )) as ToolResponse;
+
+      expect(result.success).toBe(true);
+      const successResult = result as ToolResponse;
+      expect(successResult.metadata.recommendations).toContain(
+        'Circular layout works best with 8 or fewer colors'
+      );
     });
   });
 

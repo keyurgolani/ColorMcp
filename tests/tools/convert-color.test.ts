@@ -742,3 +742,91 @@ describe('convert_color tool', () => {
     });
   });
 });
+describe('Additional Branch Coverage', () => {
+  test('should handle unsupported output format error', async () => {
+    // Test validation error for invalid output format
+    const result = await convertColorTool.handler({
+      color: '#FF0000',
+      output_format: 'invalid_format' as any,
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe(
+        'Invalid output format. Supported formats: hex, rgb, rgba, hsl, hsla, hsv, hsva, hwb, cmyk, lab, xyz, lch, oklab, oklch, css-var, scss-var, tailwind, swift, android, flutter, named'
+      );
+      expect(result.error.suggestions).toContain(
+        'Check the input format and try again'
+      );
+      expect(result.error.suggestions).toContain(
+        'Refer to the tool documentation for valid parameter formats'
+      );
+    }
+  });
+
+  test('should handle generic error with fallback suggestions', async () => {
+    // Mock the ColorParser.parse method to throw a generic error
+    const originalParse = require('../../src/color/color-parser').ColorParser
+      .parse;
+    const mockParse = jest.fn().mockImplementation(() => {
+      throw new Error('Some unexpected error occurred');
+    });
+
+    // Replace the function temporarily
+    const colorParserModule = require('../../src/color/color-parser');
+    colorParserModule.ColorParser.parse = mockParse;
+
+    const result = await convertColorTool.handler({
+      color: '#FF0000',
+      output_format: 'rgb',
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.message).toBe('Some unexpected error occurred');
+      expect(result.error.suggestions).toContain(
+        'Verify the input color is valid'
+      );
+      expect(result.error.suggestions).toContain(
+        'Try a different color format'
+      );
+      expect(result.error.suggestions).toContain(
+        'Check that all parameters are correctly specified'
+      );
+    }
+
+    // Restore the original function
+    colorParserModule.ColorParser.parse = originalParse;
+  });
+
+  test('should include error details in development environment', async () => {
+    // Set NODE_ENV to development
+    const originalNodeEnv = process.env['NODE_ENV'];
+    process.env['NODE_ENV'] = 'development';
+
+    // Mock the ColorParser.parse method to throw an error
+    const originalParse = require('../../src/color/color-parser').ColorParser
+      .parse;
+    const mockParse = jest.fn().mockImplementation(() => {
+      throw new Error('Detailed development error message');
+    });
+
+    // Replace the function temporarily
+    const colorParserModule = require('../../src/color/color-parser');
+    colorParserModule.ColorParser.parse = mockParse;
+
+    const result = await convertColorTool.handler({
+      color: '#FF0000',
+      output_format: 'rgb',
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.details).toBe('Detailed development error message');
+    }
+
+    // Restore the original function and environment
+    colorParserModule.ColorParser.parse = originalParse;
+    process.env['NODE_ENV'] = originalNodeEnv;
+  });
+});

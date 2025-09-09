@@ -33,7 +33,7 @@ export interface ToolHandler {
 }
 
 export interface ToolResponse {
-  success: boolean;
+  success: true;
   data: unknown;
   metadata: ResponseMetadata;
   visualizations?: {

@@ -66,6 +66,10 @@ import { createPalettePngTool } from './create-palette-png';
 import { createGradientPngTool } from './create-gradient-png';
 import { createColorComparisonPngTool } from './create-color-comparison-png';
 
+// Import and register theme generation tools
+import { generateThemeTool } from './generate-theme';
+import { generateSemanticColorsTool } from './generate-semantic-colors';
+
 // Import test tool
 import { testHtmlTool } from './test-html';
 
@@ -96,6 +100,10 @@ toolRegistry.registerTool(createGradientHtmlTool);
 toolRegistry.registerTool(createPalettePngTool);
 toolRegistry.registerTool(createGradientPngTool);
 toolRegistry.registerTool(createColorComparisonPngTool);
+
+// Register theme generation tools
+toolRegistry.registerTool(generateThemeTool);
+toolRegistry.registerTool(generateSemanticColorsTool);
 
 // Register test tool
 toolRegistry.registerTool(testHtmlTool);
