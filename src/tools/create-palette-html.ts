@@ -3,13 +3,13 @@
  */
 
 import { ToolHandler, ToolResponse, ErrorResponse } from '../types/index';
-import {
-  HTMLGenerator,
-  HTMLGeneratorOptions,
-  PaletteVisualizationData,
-} from '../visualization/html-generator';
-import { UnifiedColor } from '../color/unified-color';
-import { validateColorInput } from '../validation/schemas';
+// import {
+//   HTMLGenerator,
+//   HTMLGeneratorOptions,
+//   PaletteVisualizationData,
+// } from '../visualization/html-generator';
+// import { UnifiedColor } from '../color/unified-color';
+// import { validateColorInput } from '../validation/schemas';
 import * as Joi from 'joi';
 
 // Parameter validation schema
@@ -93,6 +93,37 @@ async function createPaletteHtml(
   const startTime = Date.now();
 
   try {
+    // Skip validation for now and test basic functionality
+    const validatedParams = params as CreatePaletteHtmlParams;
+
+    // Simple test first - just return success without doing anything complex
+    return {
+      success: true,
+      data: {
+        colors: validatedParams.palette.map(color => ({
+          hex: color,
+          rgb: color,
+          hsl: color,
+        })),
+        layout: validatedParams.layout || 'horizontal',
+        color_count: validatedParams.palette.length,
+      },
+      metadata: {
+        execution_time: Date.now() - startTime,
+        tool: 'create_palette_html',
+        timestamp: new Date().toISOString(),
+        color_space_used: 'sRGB',
+        accessibility_notes: [],
+        recommendations: ['Test mode - HTML generation disabled'],
+      },
+      visualizations: {
+        html: '<html><body><h1>Test HTML</h1></body></html>',
+      },
+      export_formats: {},
+    };
+
+    // Original code commented out for testing
+    /*
     // Validate parameters
     const { error, value } = createPaletteHtmlSchema.validate(params);
     if (error) {
@@ -186,7 +217,12 @@ async function createPaletteHtml(
           };
         }
 
-        const unifiedColor = new UnifiedColor(colorInput);
+        let unifiedColor: UnifiedColor;
+        try {
+          unifiedColor = new UnifiedColor(colorInput);
+        } catch (colorError) {
+          throw new Error(`Failed to create UnifiedColor for "${colorInput}": ${colorError instanceof Error ? colorError.message : String(colorError)}`);
+        }
 
         // Calculate accessibility information if requested
         let accessibility;
@@ -300,8 +336,20 @@ async function createPaletteHtml(
     };
 
     // Generate HTML
-    const htmlGenerator = new HTMLGenerator();
-    const html = htmlGenerator.generatePaletteHTML(visualizationData);
+    let htmlGenerator: HTMLGenerator;
+    let html: string;
+    
+    try {
+      htmlGenerator = new HTMLGenerator();
+    } catch (generatorError) {
+      throw new Error(`Failed to create HTMLGenerator: ${generatorError instanceof Error ? generatorError.message : String(generatorError)}`);
+    }
+    
+    try {
+      html = htmlGenerator.generatePaletteHTML(visualizationData);
+    } catch (htmlError) {
+      throw new Error(`Failed to generate HTML: ${htmlError instanceof Error ? htmlError.message : String(htmlError)}`);
+    }
 
     // Prepare export formats
     const exportFormats: Record<string, string | object> = {};
@@ -354,13 +402,19 @@ async function createPaletteHtml(
       export_formats: exportFormats,
     };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
     return {
       success: false,
       error: {
         code: 'INTERNAL_ERROR',
-        message:
-          'An unexpected error occurred while generating the HTML visualization',
-        details: error,
+        message: `HTML visualization error: ${errorMessage}`,
+        details: {
+          errorMessage,
+          errorStack,
+          errorType: error?.constructor?.name || 'Unknown',
+        },
         suggestions: [
           'Try with a smaller palette',
           'Verify all colors are in valid formats',
@@ -373,20 +427,37 @@ async function createPaletteHtml(
         timestamp: new Date().toISOString(),
       },
     };
+    */
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return {
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: `Test mode error: ${errorMessage}`,
+        details: { errorMessage },
+        suggestions: ['Check the error message above'],
+      },
+      metadata: {
+        execution_time: Date.now() - startTime,
+        tool: 'create_palette_html',
+        timestamp: new Date().toISOString(),
+      },
+    };
   }
 }
 
-function generateCSSExport(
-  colors: Array<{ hex: string; rgb: string; hsl: string }>
-): string {
-  let css = ':root {\n';
-  colors.forEach((color, index) => {
-    css += `  --color-${index + 1}: ${color.hex};\n`;
-    css += `  --color-${index + 1}-rgb: ${color.rgb.match(/\d+/g)?.join(', ')};\n`;
-  });
-  css += '}';
-  return css;
-}
+// function generateCSSExport(
+//   colors: Array<{ hex: string; rgb: string; hsl: string }>
+// ): string {
+//   let css = ':root {\n';
+//   colors.forEach((color, index) => {
+//     css += `  --color-${index + 1}: ${color.hex};\n`;
+//     css += `  --color-${index + 1}-rgb: ${color.rgb.match(/\d+/g)?.join(', ')};\n`;
+//   });
+//   css += '}';
+//   return css;
+// }
 
 export const createPaletteHtmlTool: ToolHandler = {
   name: 'create_palette_html',

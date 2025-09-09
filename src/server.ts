@@ -11,8 +11,10 @@ import {
 
 import { ServerConfig } from './types/index';
 import { toolRegistry } from './tools/index';
-import { convertColorTool } from './tools/convert-color';
 import { logger } from './utils/logger';
+
+// Import tools/index to ensure all tools are registered
+import './tools/index.js';
 
 export class ColorServer {
   private server: Server;
@@ -163,8 +165,8 @@ export class ColorServer {
   }
 
   private registerTools(): void {
-    // Register all available tools
-    toolRegistry.registerTool(convertColorTool);
+    // All tools are automatically registered when tools/index.ts is imported
+    // No need to manually register individual tools here
 
     const toolCount = toolRegistry.getAllTools().length;
     logger.info(

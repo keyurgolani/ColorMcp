@@ -2,9 +2,7 @@
   "mcpServers": {
     "color-server": {
       "command": "/opt/homebrew/bin/node",
-      "args": [
-        "/Users/golani/PersonalProjects/ColorMcp2/dist/index.js"
-      ],
+      "args": ["/Users/golani/PersonalProjects/ColorMcp2/dist/index.js"],
       "env": {
         "NODE_ENV": "development",
         "LOG_LEVEL": "info"
@@ -16,7 +14,12 @@
         "generate_harmony_palette",
         "check_contrast",
         "create_palette_html",
-        "optimize_for_accessibility"
+        "optimize_for_accessibility",
+        "simulate_colorblindness",
+        "create_color_wheel_html",
+        "create_gradient_html",
+        "simulate_colorblindness",
+        "test_html"
       ]
     }
   }

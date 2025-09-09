@@ -38,6 +38,9 @@ export class ToolRegistry {
 // Export singleton instance
 export const toolRegistry = new ToolRegistry();
 
+// Import and register conversion tools
+import { convertColorTool } from './convert-color';
+
 // Import and register analysis tools
 import { analyzeColorTool } from './analyze-color';
 import { checkContrastTool } from './check-contrast';
@@ -54,6 +57,12 @@ import { createPaletteHtmlTool } from './create-palette-html';
 import { createColorWheelHtmlTool } from './create-color-wheel-html';
 import { createGradientHtmlTool } from './create-gradient-html';
 
+// Import test tool
+import { testHtmlTool } from './test-html';
+
+// Register conversion tools
+toolRegistry.registerTool(convertColorTool);
+
 // Register analysis tools
 toolRegistry.registerTool(analyzeColorTool);
 toolRegistry.registerTool(checkContrastTool);
@@ -69,3 +78,6 @@ toolRegistry.registerTool(generateHarmonyPaletteTool);
 toolRegistry.registerTool(createPaletteHtmlTool);
 toolRegistry.registerTool(createColorWheelHtmlTool);
 toolRegistry.registerTool(createGradientHtmlTool);
+
+// Register test tool
+toolRegistry.registerTool(testHtmlTool);
