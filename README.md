@@ -90,6 +90,7 @@ Add to your MCP client configuration:
 The MCP Color Server accepts colors in any of these formats:
 
 #### Standard Web Formats
+
 - **HEX**: `#FF0000`, `#F00`, `FF0000`, `F00`
 - **RGB**: `rgb(255, 0, 0)`, `255, 0, 0`, `255 0 0`, `[255, 0, 0]`
 - **RGBA**: `rgba(255, 0, 0, 0.5)`
@@ -99,6 +100,7 @@ The MCP Color Server accepts colors in any of these formats:
 - **HSVA**: `hsva(0, 100%, 100%, 0.7)`
 
 #### Advanced Color Spaces
+
 - **HWB**: `hwb(0, 0%, 0%)`
 - **CMYK**: `cmyk(0%, 100%, 100%, 0%)`
 - **LAB**: `lab(53.23, 80.11, 67.22)`
@@ -108,6 +110,7 @@ The MCP Color Server accepts colors in any of these formats:
 - **OKLCH**: `oklch(0.628, 0.258, 29.23)`
 
 #### Named Colors
+
 - **CSS Named Colors**: `red`, `blue`, `forestgreen`, `lightsteelblue`, etc.
 
 ### Output Formats
@@ -115,6 +118,7 @@ The MCP Color Server accepts colors in any of these formats:
 Convert to any of these formats with configurable precision:
 
 #### Web Development
+
 ```json
 {
   "color": "#FF0000",
@@ -123,7 +127,7 @@ Convert to any of these formats with configurable precision:
 // Result: "#ff0000"
 
 {
-  "color": "#FF0000", 
+  "color": "#FF0000",
   "output_format": "rgb"
 }
 // Result: "rgb(255, 0, 0)"
@@ -137,6 +141,7 @@ Convert to any of these formats with configurable precision:
 ```
 
 #### CSS Variables
+
 ```json
 {
   "color": "#FF0000",
@@ -147,13 +152,14 @@ Convert to any of these formats with configurable precision:
 
 {
   "color": "#FF0000",
-  "output_format": "scss-var", 
+  "output_format": "scss-var",
   "variable_name": "accent_color"
 }
 // Result: "$accent_color: #ff0000;"
 ```
 
 #### Mobile Development
+
 ```json
 {
   "color": "#FF0000",
@@ -169,13 +175,14 @@ Convert to any of these formats with configurable precision:
 // Result: "Color.parseColor(\"#FFFF0000\")"
 
 {
-  "color": "#FF0000", 
+  "color": "#FF0000",
   "output_format": "flutter"
 }
 // Result: "Color(0xFFFF0000)"
 ```
 
 #### Framework Integration
+
 ```json
 {
   "color": "#FF0000",
@@ -185,6 +192,7 @@ Convert to any of these formats with configurable precision:
 ```
 
 #### Scientific/Professional
+
 ```json
 {
   "color": "#FF0000",
@@ -195,7 +203,7 @@ Convert to any of these formats with configurable precision:
 
 {
   "color": "#FF0000",
-  "output_format": "oklab", 
+  "output_format": "oklab",
   "precision": 8
 }
 // Result: "oklab(0.62800000, 0.22500000, 0.12600000)"
@@ -204,6 +212,7 @@ Convert to any of these formats with configurable precision:
 ### Usage Examples
 
 #### Basic Color Conversion
+
 ```javascript
 // Convert HEX to RGB
 {
@@ -216,7 +225,7 @@ Convert to any of these formats with configurable precision:
 
 // Convert RGB to HSL with high precision
 {
-  "tool": "convert_color", 
+  "tool": "convert_color",
   "parameters": {
     "color": "rgb(255, 128, 64)",
     "output_format": "hsl",
@@ -226,6 +235,7 @@ Convert to any of these formats with configurable precision:
 ```
 
 #### Advanced Color Space Conversions
+
 ```javascript
 // Convert to LAB color space for perceptual uniformity
 {
@@ -242,13 +252,14 @@ Convert to any of these formats with configurable precision:
   "tool": "convert_color",
   "parameters": {
     "color": "hsl(25, 100%, 69%)",
-    "output_format": "oklch", 
+    "output_format": "oklch",
     "precision": 5
   }
 }
 ```
 
 #### Framework-Specific Outputs
+
 ```javascript
 // Generate Swift UIColor
 {
@@ -264,7 +275,7 @@ Convert to any of these formats with configurable precision:
 {
   "tool": "convert_color",
   "parameters": {
-    "color": "#ef4444", 
+    "color": "#ef4444",
     "output_format": "tailwind"
   }
 }
@@ -317,7 +328,14 @@ mcp-color-server/
 
 ### Code Quality
 
-This project maintains high code quality standards:
+This project maintains high code quality standards with automated Git hooks:
+
+- **Pre-commit Hooks**: Automatic linting, formatting, and type checking on staged files
+- **Pre-push Hooks**: Full test suite with 90%+ coverage requirements and build verification
+- **Commit Message Validation**: Enforces conventional commit format
+- **Zero-Defect Policy**: No TypeScript errors, ESLint warnings, or failing tests allowed
+
+See [Husky Setup Documentation](docs/husky-setup.md) for detailed information about our Git hooks.
 
 - **TypeScript**: Strict mode enabled with comprehensive type checking
 - **ESLint**: Enforces code style and catches potential issues

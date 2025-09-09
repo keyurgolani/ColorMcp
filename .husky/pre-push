@@ -1,0 +1,16 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🚀 Running pre-push checks..."
+
+# Ensure we're not pushing broken code
+echo "📝 Running TypeScript type checking..."
+npm run type-check
+
+echo "🧪 Running tests with coverage requirements..."
+npm run test:coverage:check
+
+echo "🏗️  Verifying build..."
+npm run build
+
+echo "✅ All pre-push checks passed! Ready to push."
