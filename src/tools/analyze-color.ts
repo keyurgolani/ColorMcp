@@ -33,7 +33,9 @@ export interface AnalyzeColorResponse {
 /**
  * Analyze color properties and accessibility
  */
-export async function analyzeColor(params: AnalyzeColorParams): Promise<ToolResponse | ErrorResponse> {
+export async function analyzeColor(
+  params: AnalyzeColorParams
+): Promise<ToolResponse | ErrorResponse> {
   const startTime = Date.now();
 
   try {
@@ -46,7 +48,9 @@ export async function analyzeColor(params: AnalyzeColorParams): Promise<ToolResp
         Date.now() - startTime,
         {
           details: { parameter: 'color' },
-          suggestions: ['Provide a color in any supported format (hex, rgb, hsl, etc.)']
+          suggestions: [
+            'Provide a color in any supported format (hex, rgb, hsl, etc.)',
+          ],
         }
       );
     }
@@ -60,17 +64,26 @@ export async function analyzeColor(params: AnalyzeColorParams): Promise<ToolResp
         `Invalid color format: ${params.color}`,
         Date.now() - startTime,
         {
-          details: { 
+          details: {
             provided: params.color,
             error: colorValidation.error,
-            supported_formats: ['hex', 'rgb', 'hsl', 'hsv', 'cmyk', 'lab', 'xyz', 'named']
+            supported_formats: [
+              'hex',
+              'rgb',
+              'hsl',
+              'hsv',
+              'cmyk',
+              'lab',
+              'xyz',
+              'named',
+            ],
           },
           suggestions: [
             'Try using hex format like #FF0000',
             'Use RGB format like rgb(255, 0, 0)',
             'Use HSL format like hsl(0, 100%, 50%)',
-            'Check the color format documentation'
-          ]
+            'Check the color format documentation',
+          ],
         }
       );
     }
@@ -89,7 +102,7 @@ export async function analyzeColor(params: AnalyzeColorParams): Promise<ToolResp
           Date.now() - startTime,
           {
             details: { provided: params.compare_color },
-            suggestions: ['Ensure compare_color is in a valid format']
+            suggestions: ['Ensure compare_color is in a valid format'],
           }
         );
       }
@@ -98,7 +111,11 @@ export async function analyzeColor(params: AnalyzeColorParams): Promise<ToolResp
 
     // Perform analysis
     const analysisTypes = params.analysis_types || ['all'];
-    const analysis = ColorAnalyzer.analyzeColor(color, analysisTypes, compareColor);
+    const analysis = ColorAnalyzer.analyzeColor(
+      color,
+      analysisTypes,
+      compareColor
+    );
 
     // Calculate overall score and generate summary
     const summary = generateAnalysisSummary(analysis);
@@ -122,7 +139,9 @@ export async function analyzeColor(params: AnalyzeColorParams): Promise<ToolResp
     // Generate accessibility notes
     const accessibilityNotes: string[] = [];
     if (!analysis.accessibility.wcag_aa_normal) {
-      accessibilityNotes.push('Does not meet WCAG AA standards for normal text');
+      accessibilityNotes.push(
+        'Does not meet WCAG AA standards for normal text'
+      );
     }
     if (!analysis.accessibility.color_blind_safe) {
       accessibilityNotes.push('May be difficult for color-blind users');
@@ -137,28 +156,28 @@ export async function analyzeColor(params: AnalyzeColorParams): Promise<ToolResp
     ];
 
     if (analysis.brightness.brightness_category === 'very_dark') {
-      recommendations.push('Consider using white or light text on this background');
+      recommendations.push(
+        'Consider using white or light text on this background'
+      );
     } else if (analysis.brightness.brightness_category === 'very_light') {
       recommendations.push('Consider using dark text on this background');
     }
 
     if (analysis.temperature.temperature === 'warm') {
-      recommendations.push('This warm color works well for energetic, friendly designs');
+      recommendations.push(
+        'This warm color works well for energetic, friendly designs'
+      );
     } else if (analysis.temperature.temperature === 'cool') {
-      recommendations.push('This cool color works well for professional, calming designs');
+      recommendations.push(
+        'This cool color works well for professional, calming designs'
+      );
     }
 
-    return createSuccessResponse(
-      'analyze_color',
-      responseData,
-      executionTime,
-      {
-        colorSpaceUsed: 'sRGB',
-        accessibilityNotes: accessibilityNotes,
-        recommendations: recommendations.slice(0, 5), // Limit to top 5 recommendations
-      }
-    );
-
+    return createSuccessResponse('analyze_color', responseData, executionTime, {
+      colorSpaceUsed: 'sRGB',
+      accessibilityNotes: accessibilityNotes,
+      recommendations: recommendations.slice(0, 5), // Limit to top 5 recommendations
+    });
   } catch (error) {
     const executionTime = Date.now() - startTime;
     return createErrorResponse(
@@ -167,10 +186,13 @@ export async function analyzeColor(params: AnalyzeColorParams): Promise<ToolResp
       `Failed to analyze color: ${error instanceof Error ? error.message : 'Unknown error'}`,
       executionTime,
       {
-        details: { 
-          color: params.color
+        details: {
+          color: params.color,
         },
-        suggestions: ['Check that the color format is supported', 'Try a different color format']
+        suggestions: [
+          'Check that the color format is supported',
+          'Try a different color format',
+        ],
       }
     );
   }
@@ -179,7 +201,9 @@ export async function analyzeColor(params: AnalyzeColorParams): Promise<ToolResp
 /**
  * Generate analysis summary with overall score and key insights
  */
-function generateAnalysisSummary(analysis: ColorAnalysisResult): AnalyzeColorResponse['summary'] {
+function generateAnalysisSummary(
+  analysis: ColorAnalysisResult
+): AnalyzeColorResponse['summary'] {
   const issues: string[] = [];
   const strengths: string[] = [];
   let score = 100;
@@ -204,8 +228,10 @@ function generateAnalysisSummary(analysis: ColorAnalysisResult): AnalyzeColorRes
   }
 
   // Evaluate brightness
-  if (analysis.brightness.brightness_category === 'very_dark' || 
-      analysis.brightness.brightness_category === 'very_light') {
+  if (
+    analysis.brightness.brightness_category === 'very_dark' ||
+    analysis.brightness.brightness_category === 'very_light'
+  ) {
     strengths.push('High contrast potential');
   } else if (analysis.brightness.brightness_category === 'medium') {
     issues.push('Medium brightness may limit contrast options');
@@ -230,13 +256,15 @@ function generateAnalysisSummary(analysis: ColorAnalysisResult): AnalyzeColorRes
 // Tool definition for MCP registration
 export const analyzeColorTool = {
   name: 'analyze_color',
-  description: 'Analyze color properties including brightness, temperature, contrast, accessibility, and optionally compare with another color',
+  description:
+    'Analyze color properties including brightness, temperature, contrast, accessibility, and optionally compare with another color',
   parameters: {
     type: 'object',
     properties: {
       color: {
         type: 'string',
-        description: 'Color to analyze in any supported format (hex, rgb, hsl, etc.)',
+        description:
+          'Color to analyze in any supported format (hex, rgb, hsl, etc.)',
       },
       analysis_types: {
         type: 'array',
@@ -257,5 +285,6 @@ export const analyzeColorTool = {
     },
     required: ['color'],
   },
-  handler: async (params: unknown) => analyzeColor(params as AnalyzeColorParams),
+  handler: async (params: unknown) =>
+    analyzeColor(params as AnalyzeColorParams),
 };

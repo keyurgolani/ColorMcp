@@ -9,7 +9,9 @@ describe('convert_color tool', () => {
   describe('Tool Definition', () => {
     test('should have correct tool metadata', () => {
       expect(convertColorTool.name).toBe('convert_color');
-      expect(convertColorTool.description).toContain('Convert colors between different formats');
+      expect(convertColorTool.description).toContain(
+        'Convert colors between different formats'
+      );
       expect(convertColorTool.parameters).toBeDefined();
       expect(convertColorTool.handler).toBeDefined();
     });
@@ -25,13 +27,32 @@ describe('convert_color tool', () => {
     });
 
     test('should support all expected output formats', () => {
-      const outputFormats = (convertColorTool.parameters as any).properties.output_format.enum;
+      const outputFormats = (convertColorTool.parameters as any).properties
+        .output_format.enum;
       const expectedFormats = [
-        'hex', 'rgb', 'rgba', 'hsl', 'hsla', 'hsv', 'hsva', 'hwb',
-        'cmyk', 'lab', 'xyz', 'lch', 'oklab', 'oklch',
-        'css-var', 'scss-var', 'tailwind', 'swift', 'android', 'flutter', 'named'
+        'hex',
+        'rgb',
+        'rgba',
+        'hsl',
+        'hsla',
+        'hsv',
+        'hsva',
+        'hwb',
+        'cmyk',
+        'lab',
+        'xyz',
+        'lch',
+        'oklab',
+        'oklch',
+        'css-var',
+        'scss-var',
+        'tailwind',
+        'swift',
+        'android',
+        'flutter',
+        'named',
       ];
-      
+
       expectedFormats.forEach(format => {
         expect(outputFormats).toContain(format);
       });
@@ -42,7 +63,7 @@ describe('convert_color tool', () => {
     test('should convert HEX to RGB', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
-        output_format: 'rgb'
+        output_format: 'rgb',
       });
 
       expect(result.success).toBe(true);
@@ -54,7 +75,7 @@ describe('convert_color tool', () => {
     test('should convert RGB to HEX', async () => {
       const result = await convertColorTool.handler({
         color: 'rgb(255, 0, 0)',
-        output_format: 'hex'
+        output_format: 'hex',
       });
 
       expect(result.success).toBe(true);
@@ -65,7 +86,7 @@ describe('convert_color tool', () => {
     test('should convert HSL to RGB', async () => {
       const result = await convertColorTool.handler({
         color: 'hsl(0, 100%, 50%)',
-        output_format: 'rgb'
+        output_format: 'rgb',
       });
 
       expect(result.success).toBe(true);
@@ -76,7 +97,7 @@ describe('convert_color tool', () => {
     test('should convert named colors', async () => {
       const result = await convertColorTool.handler({
         color: 'red',
-        output_format: 'hex'
+        output_format: 'hex',
       });
 
       expect(result.success).toBe(true);
@@ -89,7 +110,7 @@ describe('convert_color tool', () => {
     test('should convert to CMYK format', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
-        output_format: 'cmyk'
+        output_format: 'cmyk',
       });
 
       expect(result.success).toBe(true);
@@ -100,71 +121,83 @@ describe('convert_color tool', () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
         output_format: 'lab',
-        precision: 2
+        precision: 2,
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.converted).toMatch(/^lab\(\d+\.\d{2}, -?\d+\.\d{2}, -?\d+\.\d{2}\)$/);
+      expect(result.data.converted).toMatch(
+        /^lab\(\d+\.\d{2}, -?\d+\.\d{2}, -?\d+\.\d{2}\)$/
+      );
     });
 
     test('should convert to XYZ format', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
         output_format: 'xyz',
-        precision: 2
+        precision: 2,
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.converted).toMatch(/^xyz\(\d+\.\d{2}, \d+\.\d{2}, \d+\.\d{2}\)$/);
+      expect(result.data.converted).toMatch(
+        /^xyz\(\d+\.\d{2}, \d+\.\d{2}, \d+\.\d{2}\)$/
+      );
     });
 
     test('should convert to HSV format', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
-        output_format: 'hsv'
+        output_format: 'hsv',
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.converted).toMatch(/^hsv\(\d+\.\d{2}, \d+\.\d{2}%, \d+\.\d{2}%\)$/);
+      expect(result.data.converted).toMatch(
+        /^hsv\(\d+\.\d{2}, \d+\.\d{2}%, \d+\.\d{2}%\)$/
+      );
     });
 
     test('should convert to LCH format', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
         output_format: 'lch',
-        precision: 2
+        precision: 2,
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.converted).toMatch(/^lch\(\d+\.\d{2}, \d+\.\d{2}, \d+\.\d{2}\)$/);
+      expect(result.data.converted).toMatch(
+        /^lch\(\d+\.\d{2}, \d+\.\d{2}, \d+\.\d{2}\)$/
+      );
     });
 
     test('should convert to OKLAB format', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
         output_format: 'oklab',
-        precision: 3
+        precision: 3,
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.converted).toMatch(/^oklab\(\d+\.\d{3}, -?\d+\.\d{3}, -?\d+\.\d{3}\)$/);
+      expect(result.data.converted).toMatch(
+        /^oklab\(\d+\.\d{3}, -?\d+\.\d{3}, -?\d+\.\d{3}\)$/
+      );
     });
 
     test('should convert to OKLCH format', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
         output_format: 'oklch',
-        precision: 3
+        precision: 3,
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.converted).toMatch(/^oklch\(\d+\.\d{3}, \d+\.\d{3}, \d+\.\d{3}\)$/);
+      expect(result.data.converted).toMatch(
+        /^oklch\(\d+\.\d{3}, \d+\.\d{3}, \d+\.\d{3}\)$/
+      );
     });
 
     test('should convert to named color format', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
-        output_format: 'named'
+        output_format: 'named',
       });
 
       expect(result.success).toBe(true);
@@ -175,11 +208,13 @@ describe('convert_color tool', () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
         output_format: 'hwb',
-        precision: 2
+        precision: 2,
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.converted).toMatch(/^hwb\(\d+\.\d{2}, \d+\.\d{2}%, \d+\.\d{2}%\)$/);
+      expect(result.data.converted).toMatch(
+        /^hwb\(\d+\.\d{2}, \d+\.\d{2}%, \d+\.\d{2}%\)$/
+      );
     });
   });
 
@@ -188,17 +223,19 @@ describe('convert_color tool', () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
         output_format: 'swift',
-        precision: 3
+        precision: 3,
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.converted).toBe('UIColor(red: 1.000, green: 0.000, blue: 0.000, alpha: 1.000)');
+      expect(result.data.converted).toBe(
+        'UIColor(red: 1.000, green: 0.000, blue: 0.000, alpha: 1.000)'
+      );
     });
 
     test('should convert to Android Color format', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
-        output_format: 'android'
+        output_format: 'android',
       });
 
       expect(result.success).toBe(true);
@@ -208,17 +245,19 @@ describe('convert_color tool', () => {
     test('should convert to Android Color format with alpha', async () => {
       const result = await convertColorTool.handler({
         color: 'rgba(255, 0, 0, 0.5)',
-        output_format: 'android'
+        output_format: 'android',
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.converted).toMatch(/Color\.parseColor\("#[0-9A-F]{8}"\)/);
+      expect(result.data.converted).toMatch(
+        /Color\.parseColor\("#[0-9A-F]{8}"\)/
+      );
     });
 
     test('should convert to Flutter Color format', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
-        output_format: 'flutter'
+        output_format: 'flutter',
       });
 
       expect(result.success).toBe(true);
@@ -228,7 +267,7 @@ describe('convert_color tool', () => {
     test('should convert to Flutter Color format with alpha', async () => {
       const result = await convertColorTool.handler({
         color: 'rgba(255, 0, 0, 0.5)',
-        output_format: 'flutter'
+        output_format: 'flutter',
       });
 
       expect(result.success).toBe(true);
@@ -238,7 +277,7 @@ describe('convert_color tool', () => {
     test('should convert to CSS variable format', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
-        output_format: 'css-var'
+        output_format: 'css-var',
       });
 
       expect(result.success).toBe(true);
@@ -248,7 +287,7 @@ describe('convert_color tool', () => {
     test('should convert to SCSS variable format', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
-        output_format: 'scss-var'
+        output_format: 'scss-var',
       });
 
       expect(result.success).toBe(true);
@@ -261,14 +300,17 @@ describe('convert_color tool', () => {
       const testCases = [
         { precision: 0, expectedPattern: /hsl\(\d+, \d+%, \d+%\)/ },
         { precision: 1, expectedPattern: /hsl\(\d+\.\d, \d+\.\d%, \d+\.\d%\)/ },
-        { precision: 3, expectedPattern: /hsl\(\d+\.\d{3}, \d+\.\d{3}%, \d+\.\d{3}%\)/ },
+        {
+          precision: 3,
+          expectedPattern: /hsl\(\d+\.\d{3}, \d+\.\d{3}%, \d+\.\d{3}%\)/,
+        },
       ];
 
       for (const { precision, expectedPattern } of testCases) {
         const result = await convertColorTool.handler({
           color: '#FF8040',
           output_format: 'hsl',
-          precision
+          precision,
         });
 
         expect(result.success).toBe(true);
@@ -280,12 +322,14 @@ describe('convert_color tool', () => {
     test('should use default precision when not specified', async () => {
       const result = await convertColorTool.handler({
         color: '#FF8040',
-        output_format: 'hsl'
+        output_format: 'hsl',
       });
 
       expect(result.success).toBe(true);
       expect(result.data.precision).toBe(2);
-      expect(result.data.converted).toMatch(/hsl\(\d+\.\d{2}, \d+\.\d{2}%, \d+\.\d{2}%\)/);
+      expect(result.data.converted).toMatch(
+        /hsl\(\d+\.\d{2}, \d+\.\d{2}%, \d+\.\d{2}%\)/
+      );
     });
   });
 
@@ -294,7 +338,7 @@ describe('convert_color tool', () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
         output_format: 'hex',
-        variable_name: 'primary'
+        variable_name: 'primary',
       });
 
       expect(result.success).toBe(true);
@@ -306,7 +350,7 @@ describe('convert_color tool', () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
         output_format: 'css-var',
-        variable_name: 'accent-color'
+        variable_name: 'accent-color',
       });
 
       expect(result.success).toBe(true);
@@ -323,13 +367,13 @@ describe('convert_color tool', () => {
         'FF0000',
         'ff0000',
         '#F00',
-        'F00'
+        'F00',
       ];
 
       for (const color of testCases) {
         const result = await convertColorTool.handler({
           color,
-          output_format: 'rgb'
+          output_format: 'rgb',
         });
 
         expect(result.success).toBe(true);
@@ -344,13 +388,13 @@ describe('convert_color tool', () => {
         'rgb(255,0,0)',
         '255, 0, 0',
         '255 0 0',
-        '[255, 0, 0]'
+        '[255, 0, 0]',
       ];
 
       for (const color of testCases) {
         const result = await convertColorTool.handler({
           color,
-          output_format: 'hex'
+          output_format: 'hex',
         });
 
         expect(result.success).toBe(true);
@@ -362,7 +406,7 @@ describe('convert_color tool', () => {
       const result = await convertColorTool.handler({
         color: 'rgba(255, 0, 0, 0.5)',
         output_format: 'rgba',
-        precision: 1
+        precision: 1,
       });
 
       expect(result.success).toBe(true);
@@ -372,7 +416,7 @@ describe('convert_color tool', () => {
     test('should handle LCH input format', async () => {
       const result = await convertColorTool.handler({
         color: 'lch(53.23, 104.55, 40.85)',
-        output_format: 'hex'
+        output_format: 'hex',
       });
 
       expect(result.success).toBe(true);
@@ -383,7 +427,7 @@ describe('convert_color tool', () => {
     test('should handle OKLAB input format', async () => {
       const result = await convertColorTool.handler({
         color: 'oklab(0.628, 0.225, 0.126)',
-        output_format: 'hex'
+        output_format: 'hex',
       });
 
       expect(result.success).toBe(true);
@@ -394,7 +438,7 @@ describe('convert_color tool', () => {
     test('should handle OKLCH input format', async () => {
       const result = await convertColorTool.handler({
         color: 'oklch(0.628, 0.258, 29.23)',
-        output_format: 'hex'
+        output_format: 'hex',
       });
 
       expect(result.success).toBe(true);
@@ -405,7 +449,7 @@ describe('convert_color tool', () => {
     test('should handle HWB input format', async () => {
       const result = await convertColorTool.handler({
         color: 'hwb(0, 0%, 0%)',
-        output_format: 'hex'
+        output_format: 'hex',
       });
 
       expect(result.success).toBe(true);
@@ -417,13 +461,13 @@ describe('convert_color tool', () => {
       const testCases = [
         'cmyk(0%, 100%, 100%, 0%)',
         'cmyk(0, 100, 100, 0)',
-        'CMYK(0%, 100%, 100%, 0%)'
+        'CMYK(0%, 100%, 100%, 0%)',
       ];
 
       for (const color of testCases) {
         const result = await convertColorTool.handler({
           color,
-          output_format: 'hex'
+          output_format: 'hex',
         });
 
         expect(result.success).toBe(true);
@@ -435,7 +479,7 @@ describe('convert_color tool', () => {
     test('should handle LAB input format', async () => {
       const result = await convertColorTool.handler({
         color: 'lab(53.23, 80.11, 67.22)',
-        output_format: 'hex'
+        output_format: 'hex',
       });
 
       expect(result.success).toBe(true);
@@ -446,7 +490,7 @@ describe('convert_color tool', () => {
     test('should handle XYZ input format', async () => {
       const result = await convertColorTool.handler({
         color: 'xyz(41.24, 21.26, 1.93)',
-        output_format: 'hex'
+        output_format: 'hex',
       });
 
       expect(result.success).toBe(true);
@@ -459,7 +503,7 @@ describe('convert_color tool', () => {
     test('should handle invalid color inputs', async () => {
       const result = await convertColorTool.handler({
         color: 'invalid-color',
-        output_format: 'rgb'
+        output_format: 'rgb',
       });
 
       expect(result.success).toBe(false);
@@ -471,7 +515,7 @@ describe('convert_color tool', () => {
 
     test('should handle missing required parameters', async () => {
       const result = await convertColorTool.handler({
-        color: '#FF0000'
+        color: '#FF0000',
         // missing output_format
       });
 
@@ -482,7 +526,7 @@ describe('convert_color tool', () => {
     test('should handle invalid output format', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
-        output_format: 'invalid-format'
+        output_format: 'invalid-format',
       });
 
       expect(result.success).toBe(false);
@@ -493,7 +537,7 @@ describe('convert_color tool', () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
         output_format: 'hsl',
-        precision: -1
+        precision: -1,
       });
 
       expect(result.success).toBe(false);
@@ -504,7 +548,7 @@ describe('convert_color tool', () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
         output_format: 'hex',
-        variable_name: '123invalid'
+        variable_name: '123invalid',
       });
 
       expect(result.success).toBe(false);
@@ -516,7 +560,7 @@ describe('convert_color tool', () => {
     test('should include comprehensive metadata', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
-        output_format: 'rgb'
+        output_format: 'rgb',
       });
 
       expect(result.success).toBe(true);
@@ -531,7 +575,7 @@ describe('convert_color tool', () => {
     test('should include color properties in metadata', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
-        output_format: 'rgb'
+        output_format: 'rgb',
       });
 
       expect(result.success).toBe(true);
@@ -545,20 +589,26 @@ describe('convert_color tool', () => {
     test('should include accessibility notes', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
-        output_format: 'rgb'
+        output_format: 'rgb',
       });
 
       expect(result.success).toBe(true);
       expect(result.metadata.accessibility_notes).toBeDefined();
       expect(result.metadata.accessibility_notes.length).toBeGreaterThan(0);
-      expect(result.metadata.accessibility_notes.some(note => note.includes('Brightness'))).toBe(true);
-      expect(result.metadata.accessibility_notes.some(note => note.includes('WCAG'))).toBe(true);
+      expect(
+        result.metadata.accessibility_notes.some(note =>
+          note.includes('Brightness')
+        )
+      ).toBe(true);
+      expect(
+        result.metadata.accessibility_notes.some(note => note.includes('WCAG'))
+      ).toBe(true);
     });
 
     test('should include helpful recommendations', async () => {
       const result = await convertColorTool.handler({
         color: '#FF0000',
-        output_format: 'rgb'
+        output_format: 'rgb',
       });
 
       expect(result.success).toBe(true);
@@ -570,34 +620,36 @@ describe('convert_color tool', () => {
   describe('Performance Requirements', () => {
     test('should complete simple conversions under 100ms', async () => {
       const startTime = Date.now();
-      
+
       await convertColorTool.handler({
         color: '#FF0000',
-        output_format: 'rgb'
+        output_format: 'rgb',
       });
-      
+
       const endTime = Date.now();
       const executionTime = endTime - startTime;
-      
+
       expect(executionTime).toBeLessThan(100);
     });
 
     test('should handle multiple conversions efficiently', async () => {
       const startTime = Date.now();
-      
+
       const promises = [];
       for (let i = 0; i < 10; i++) {
-        promises.push(convertColorTool.handler({
-          color: `#${i.toString(16).repeat(6)}`,
-          output_format: 'rgb'
-        }));
+        promises.push(
+          convertColorTool.handler({
+            color: `#${i.toString(16).repeat(6)}`,
+            output_format: 'rgb',
+          })
+        );
       }
-      
+
       await Promise.all(promises);
-      
+
       const endTime = Date.now();
       const totalTime = endTime - startTime;
-      
+
       // 10 conversions should complete in under 500ms
       expect(totalTime).toBeLessThan(500);
     });
@@ -606,20 +658,20 @@ describe('convert_color tool', () => {
   describe('Mathematical Accuracy', () => {
     test('should maintain color accuracy in round-trip conversions', async () => {
       const originalColor = '#FF8040';
-      
+
       // Convert to RGB and back to HEX
       const rgbResult = await convertColorTool.handler({
         color: originalColor,
-        output_format: 'rgb'
+        output_format: 'rgb',
       });
-      
+
       expect(rgbResult.success).toBe(true);
-      
+
       const hexResult = await convertColorTool.handler({
         color: rgbResult.data.converted,
-        output_format: 'hex'
+        output_format: 'hex',
       });
-      
+
       expect(hexResult.success).toBe(true);
       expect(hexResult.data.converted).toBe(originalColor.toLowerCase());
     });
@@ -637,7 +689,7 @@ describe('convert_color tool', () => {
       for (const { color, name } of edgeCases) {
         const result = await convertColorTool.handler({
           color,
-          output_format: 'hsl'
+          output_format: 'hsl',
         });
 
         expect(result.success).toBe(true);

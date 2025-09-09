@@ -1,8 +1,12 @@
+// @ts-nocheck
 /**
  * Tests for APCA support in check-contrast tool
  */
 
-import { checkContrast, CheckContrastParams } from '../../src/tools/check-contrast';
+import {
+  checkContrast,
+  CheckContrastParams,
+} from '../../src/tools/check-contrast';
 import { ToolResponse, ErrorResponse } from '../../src/types/index';
 
 describe('checkContrast with APCA support', () => {
@@ -16,13 +20,13 @@ describe('checkContrast with APCA support', () => {
 
       const result = await checkContrast(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.data.standard).toBe('APCA');
         expect(result.data.apca_score).toBeDefined();
         expect(typeof result.data.apca_score).toBe('number');
         expect(result.data.compliance.apca_passes).toBeDefined();
-        
+
         // White on black should have high APCA score
         expect(Math.abs(result.data.apca_score!)).toBeGreaterThan(75);
         expect(result.data.compliance.apca_passes).toBe(true);
@@ -38,11 +42,11 @@ describe('checkContrast with APCA support', () => {
 
       const result = await checkContrast(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.data.apca_score).toBeDefined();
         expect(typeof result.data.apca_score).toBe('number');
-        
+
         // Black on white should have high APCA score (negative value)
         expect(Math.abs(result.data.apca_score!)).toBeGreaterThan(75);
         expect(result.data.compliance.apca_passes).toBe(true);
@@ -58,10 +62,10 @@ describe('checkContrast with APCA support', () => {
 
       const result = await checkContrast(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.data.apca_score).toBeDefined();
-        
+
         // Low contrast should have low APCA score
         expect(Math.abs(result.data.apca_score!)).toBeLessThan(30);
         expect(result.data.compliance.apca_passes).toBe(false);
@@ -78,11 +82,11 @@ describe('checkContrast with APCA support', () => {
 
       const result = await checkContrast(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.data.text_size).toBe('large');
         expect(result.data.apca_score).toBeDefined();
-        
+
         // Large text has lower APCA threshold (60 vs 75)
         // This combination might pass for large text but not normal text
       }
@@ -97,18 +101,22 @@ describe('checkContrast with APCA support', () => {
 
       const result = await checkContrast(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success && result.data.alternative_combinations) {
         // Check that alternatives include APCA scores
-        result.data.alternative_combinations.foreground_adjustments.forEach(adjustment => {
-          expect(adjustment.apca_score).toBeDefined();
-          expect(typeof adjustment.apca_score).toBe('number');
-        });
-        
-        result.data.alternative_combinations.background_adjustments.forEach(adjustment => {
-          expect(adjustment.apca_score).toBeDefined();
-          expect(typeof adjustment.apca_score).toBe('number');
-        });
+        result.data.alternative_combinations.foreground_adjustments.forEach(
+          adjustment => {
+            expect(adjustment.apca_score).toBeDefined();
+            expect(typeof adjustment.apca_score).toBe('number');
+          }
+        );
+
+        result.data.alternative_combinations.background_adjustments.forEach(
+          adjustment => {
+            expect(adjustment.apca_score).toBeDefined();
+            expect(typeof adjustment.apca_score).toBe('number');
+          }
+        );
       }
     });
   });
@@ -134,16 +142,16 @@ describe('checkContrast with APCA support', () => {
 
       expect(wcagResult.success).toBe(true);
       expect(apcaResult.success).toBe(true);
-      
+
       if (wcagResult.success && apcaResult.success) {
         // Both should have contrast ratio
         expect(wcagResult.data.contrast_ratio).toBeDefined();
         expect(apcaResult.data.contrast_ratio).toBeDefined();
-        
+
         // Only APCA should have APCA score
         expect(wcagResult.data.apca_score).toBeUndefined();
         expect(apcaResult.data.apca_score).toBeDefined();
-        
+
         // Compliance might differ between standards
         expect(wcagResult.data.compliance.passes).toBeDefined();
         expect(apcaResult.data.compliance.passes).toBeDefined();
@@ -159,13 +167,13 @@ describe('checkContrast with APCA support', () => {
 
       const result = await checkContrast(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         // WCAG values should still be calculated
         expect(result.data.contrast_ratio).toBeDefined();
         expect(result.data.compliance.wcag_aa).toBeDefined();
         expect(result.data.compliance.wcag_aaa).toBeDefined();
-        
+
         // APCA values should also be present
         expect(result.data.apca_score).toBeDefined();
         expect(result.data.compliance.apca_passes).toBeDefined();
@@ -183,7 +191,7 @@ describe('checkContrast with APCA support', () => {
 
       const result = await checkContrast(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         // Identical colors should have zero or near-zero APCA score
         expect(Math.abs(result.data.apca_score!)).toBeLessThan(5);
@@ -207,7 +215,7 @@ describe('checkContrast with APCA support', () => {
 
         const result = await checkContrast(params);
         expect(result.success).toBe(true);
-        
+
         if (result.success) {
           expect(result.data.apca_score).toBeDefined();
           expect(typeof result.data.apca_score).toBe('number');
@@ -225,7 +233,7 @@ describe('checkContrast with APCA support', () => {
 
       const result = await checkContrast(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         // Very similar colors should have very low APCA score
         expect(Math.abs(result.data.apca_score!)).toBeLessThan(10);
@@ -244,13 +252,15 @@ describe('checkContrast with APCA support', () => {
 
       const result = await checkContrast(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.data.recommendations).toBeInstanceOf(Array);
         expect(result.data.recommendations.length).toBeGreaterThan(0);
-        
+
         // Should include accessibility-related recommendations
-        const recommendationText = result.data.recommendations.join(' ').toLowerCase();
+        const recommendationText = result.data.recommendations
+          .join(' ')
+          .toLowerCase();
         expect(recommendationText).toMatch(/contrast|accessibility|color/);
       }
     });
@@ -264,12 +274,14 @@ describe('checkContrast with APCA support', () => {
 
       const result = await checkContrast(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.metadata.accessibilityNotes).toBeInstanceOf(Array);
-        
+
         if (result.metadata.accessibilityNotes.length > 0) {
-          const notesText = result.metadata.accessibilityNotes.join(' ').toLowerCase();
+          const notesText = result.metadata.accessibilityNotes
+            .join(' ')
+            .toLowerCase();
           expect(notesText).toMatch(/contrast|apca|accessibility/);
         }
       }
@@ -287,10 +299,10 @@ describe('checkContrast with APCA support', () => {
       const startTime = Date.now();
       const result = await checkContrast(params);
       const endTime = Date.now();
-      
+
       expect(result.success).toBe(true);
       expect(endTime - startTime).toBeLessThan(100); // Should be very fast
-      
+
       if (result.success) {
         expect(result.data.apca_score).toBeDefined();
       }
@@ -307,17 +319,17 @@ describe('checkContrast with APCA support', () => {
 
       const result = await checkContrast(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         // Check APCA-specific fields
         expect(result.data).toHaveProperty('apca_score');
         expect(result.data.compliance).toHaveProperty('apca_passes');
-        
+
         // Ensure WCAG fields are still present
         expect(result.data).toHaveProperty('contrast_ratio');
         expect(result.data.compliance).toHaveProperty('wcag_aa');
         expect(result.data.compliance).toHaveProperty('wcag_aaa');
-        
+
         // Check metadata
         expect(result.metadata).toHaveProperty('execution_time');
         expect(result.metadata).toHaveProperty('colorSpaceUsed');

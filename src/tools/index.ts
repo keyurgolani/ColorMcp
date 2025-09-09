@@ -49,6 +49,11 @@ import { optimizeForAccessibilityTool } from './optimize-for-accessibility';
 // Import and register palette generation tools
 import { generateHarmonyPaletteTool } from './generate-harmony-palette';
 
+// Import and register visualization tools
+import { createPaletteHtmlTool } from './create-palette-html';
+import { createColorWheelHtmlTool } from './create-color-wheel-html';
+import { createGradientHtmlTool } from './create-gradient-html';
+
 // Register analysis tools
 toolRegistry.registerTool(analyzeColorTool);
 toolRegistry.registerTool(checkContrastTool);
@@ -59,3 +64,8 @@ toolRegistry.registerTool(optimizeForAccessibilityTool);
 
 // Register palette generation tools
 toolRegistry.registerTool(generateHarmonyPaletteTool);
+
+// Register visualization tools
+toolRegistry.registerTool(createPaletteHtmlTool);
+toolRegistry.registerTool(createColorWheelHtmlTool);
+toolRegistry.registerTool(createGradientHtmlTool);

@@ -2,7 +2,12 @@
  * Tests for simulate-colorblindness tool
  */
 
-import { simulateColorblindness, SimulateColorblindnessParams, SimulateColorblindnessResponse } from '../../src/tools/simulate-colorblindness';
+import {
+  simulateColorblindness,
+  SimulateColorblindnessParams,
+  SimulateColorblindnessResponse,
+} from '../../src/tools/simulate-colorblindness';
+import { ToolResponse, ErrorResponse } from '../../src/types/index';
 
 describe('simulateColorblindness', () => {
   describe('Parameter Validation', () => {
@@ -13,10 +18,9 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(false);
-      
-      if (!result.success) {
-        expect(result.error.code).toBe('MISSING_COLORS');
-      }
+
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error.code).toBe('MISSING_COLORS');
     });
 
     test('should require non-empty colors array', async () => {
@@ -27,10 +31,9 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(false);
-      
-      if (!result.success) {
-        expect(result.error.code).toBe('MISSING_COLORS');
-      }
+
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error.code).toBe('MISSING_COLORS');
     });
 
     test('should require deficiency type', async () => {
@@ -40,10 +43,9 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(false);
-      
-      if (!result.success) {
-        expect(result.error.code).toBe('MISSING_TYPE');
-      }
+
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error.code).toBe('MISSING_TYPE');
     });
 
     test('should validate deficiency type', async () => {
@@ -54,10 +56,9 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(false);
-      
-      if (!result.success) {
-        expect(result.error.code).toBe('INVALID_DEFICIENCY_TYPE');
-      }
+
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error.code).toBe('INVALID_DEFICIENCY_TYPE');
     });
 
     test('should validate severity range', async () => {
@@ -69,10 +70,9 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(false);
-      
-      if (!result.success) {
-        expect(result.error.code).toBe('INVALID_SEVERITY');
-      }
+
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error.code).toBe('INVALID_SEVERITY');
     });
 
     test('should validate color formats', async () => {
@@ -83,10 +83,9 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(false);
-      
-      if (!result.success) {
-        expect(result.error.code).toBe('INVALID_COLOR_FORMAT');
-      }
+
+      const errorResult = result as ErrorResponse;
+      expect(errorResult.error.code).toBe('INVALID_COLOR_FORMAT');
     });
   });
 
@@ -99,22 +98,27 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(true);
-      
-      if (result.success) {
-        const data = result.data as SimulateColorblindnessResponse;
-        expect(data.deficiency_type).toBe('protanopia');
-        expect(data.results).toHaveLength(3);
-        expect(data.summary.total_colors).toBe(3);
-        
-        // Red and green should be more affected than blue for protanopia
-        const redResult = data.results[0];
-        const greenResult = data.results[1];
-        const blueResult = data.results[2];
-        
-        expect(redResult.difference_score).toBeGreaterThan(0);
-        expect(greenResult.difference_score).toBeGreaterThan(0);
-        expect(blueResult.difference_score).toBeGreaterThanOrEqual(0);
-      }
+
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+      expect(data.deficiency_type).toBe('protanopia');
+      expect(data.results).toHaveLength(3);
+      expect(data.summary.total_colors).toBe(3);
+
+      // Red and green should be more affected than blue for protanopia
+      const redResult = data.results.find(
+        r => r.original_color.toLowerCase() === '#ff0000'
+      );
+      const greenResult = data.results.find(
+        r => r.original_color.toLowerCase() === '#00ff00'
+      );
+      const blueResult = data.results.find(
+        r => r.original_color.toLowerCase() === '#0000ff'
+      );
+
+      expect(redResult?.difference_score || 0).toBeGreaterThan(0);
+      expect(greenResult?.difference_score || 0).toBeGreaterThan(0);
+      expect(blueResult?.difference_score || 0).toBeGreaterThanOrEqual(0);
     });
 
     test('should simulate deuteranopia correctly', async () => {
@@ -125,17 +129,19 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(true);
-      
-      if (result.success) {
-        expect(result.data.deficiency_type).toBe('deuteranopia');
-        expect(result.data.results).toHaveLength(2);
-        
-        // Both red and green should be affected
-        result.data.results.forEach(colorResult => {
-          expect(colorResult.difference_score).toBeGreaterThanOrEqual(0);
-          expect(colorResult.accessibility_impact).toMatch(/none|minimal|moderate|severe/);
-        });
-      }
+
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+      expect(data.deficiency_type).toBe('deuteranopia');
+      expect(data.results).toHaveLength(2);
+
+      // Both red and green should be affected
+      data.results.forEach((colorResult: any) => {
+        expect(colorResult.difference_score).toBeGreaterThanOrEqual(0);
+        expect(colorResult.accessibility_impact).toMatch(
+          /none|minimal|moderate|severe/
+        );
+      });
     });
 
     test('should simulate tritanopia correctly', async () => {
@@ -146,16 +152,16 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(true);
-      
-      if (result.success) {
-        expect(result.data.deficiency_type).toBe('tritanopia');
-        expect(result.data.results).toHaveLength(2);
-        
-        // Blue and yellow should be affected
-        result.data.results.forEach(colorResult => {
-          expect(colorResult.difference_score).toBeGreaterThanOrEqual(0);
-        });
-      }
+
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+      expect(data.deficiency_type).toBe('tritanopia');
+      expect(data.results).toHaveLength(2);
+
+      // Blue and yellow should be affected
+      data.results.forEach((colorResult: any) => {
+        expect(colorResult.difference_score).toBeGreaterThanOrEqual(0);
+      });
     });
 
     test('should simulate monochromacy correctly', async () => {
@@ -166,16 +172,18 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(true);
-      
-      if (result.success) {
-        expect(result.data.deficiency_type).toBe('monochromacy');
-        
-        // All colors should be converted to grayscale
-        result.data.results.forEach(colorResult => {
-          expect(colorResult.difference_score).toBeGreaterThan(0);
-          expect(colorResult.accessibility_impact).toMatch(/minimal|moderate|severe/);
-        });
-      }
+
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+      expect(data.deficiency_type).toBe('monochromacy');
+
+      // All colors should be converted to grayscale
+      data.results.forEach((colorResult: any) => {
+        expect(colorResult.difference_score).toBeGreaterThan(0);
+        expect(colorResult.accessibility_impact).toMatch(
+          /minimal|moderate|severe/
+        );
+      });
     });
 
     test('should handle severity parameter', async () => {
@@ -187,14 +195,14 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(true);
-      
-      if (result.success) {
-        expect(result.data.severity).toBe(50);
-        
-        // With 50% severity, the effect should be less pronounced
-        const colorResult = result.data.results[0];
-        expect(colorResult.difference_score).toBeGreaterThanOrEqual(0);
-      }
+
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+      expect(data.severity).toBe(50);
+
+      // With 50% severity, the effect should be less pronounced
+      const colorResult = data.results[0];
+      expect(colorResult?.difference_score).toBeGreaterThanOrEqual(0);
     });
 
     test('should provide accessibility impact assessment', async () => {
@@ -205,12 +213,14 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(true);
-      
-      if (result.success) {
-        result.data.results.forEach(colorResult => {
-          expect(['none', 'minimal', 'moderate', 'severe']).toContain(colorResult.accessibility_impact);
-        });
-      }
+
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+      data.results.forEach((colorResult: any) => {
+        expect(['none', 'minimal', 'moderate', 'severe']).toContain(
+          colorResult.accessibility_impact
+        );
+      });
     });
 
     test('should generate appropriate recommendations', async () => {
@@ -221,15 +231,15 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(true);
-      
-      if (result.success) {
-        expect(result.data.recommendations).toBeInstanceOf(Array);
-        expect(result.data.recommendations.length).toBeGreaterThan(0);
-        
-        // Should include protanopia-specific recommendations
-        const recommendationText = result.data.recommendations.join(' ');
-        expect(recommendationText.toLowerCase()).toMatch(/red|green|blue|yellow/);
-      }
+
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+      expect(data.recommendations).toBeInstanceOf(Array);
+      expect(data.recommendations.length).toBeGreaterThan(0);
+
+      // Should include protanopia-specific recommendations
+      const recommendationText = data.recommendations.join(' ');
+      expect(recommendationText.toLowerCase()).toMatch(/red|green|blue|yellow/);
     });
   });
 
@@ -242,10 +252,10 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(true);
-      
-      if (result.success) {
-        expect(result.data.results).toHaveLength(2);
-      }
+
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+      expect(data.results).toHaveLength(2);
     });
 
     test('should handle extreme colors', async () => {
@@ -256,15 +266,15 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(true);
-      
-      if (result.success) {
-        expect(result.data.results).toHaveLength(2);
-        
-        // Black and white should have minimal impact from colorblindness
-        result.data.results.forEach(colorResult => {
-          expect(colorResult.accessibility_impact).toMatch(/none|minimal/);
-        });
-      }
+
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+      expect(data.results).toHaveLength(2);
+
+      // Black and white should have minimal impact from colorblindness
+      data.results.forEach((colorResult: any) => {
+        expect(colorResult.accessibility_impact).toMatch(/none|minimal/);
+      });
     });
 
     test('should handle various color formats', async () => {
@@ -275,22 +285,24 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(true);
-      
-      if (result.success) {
-        expect(result.data.results).toHaveLength(3);
-        
-        // All should have valid hex output
-        result.data.results.forEach(colorResult => {
-          expect(colorResult.simulated_color).toMatch(/^#[0-9A-F]{6}$/i);
-        });
-      }
+
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+      expect(data.results).toHaveLength(3);
+
+      // All should have valid hex output
+      data.results.forEach((colorResult: any) => {
+        expect(colorResult.simulated_color).toMatch(/^#[0-9A-F]{6}$/i);
+      });
     });
   });
 
   describe('Performance', () => {
     test('should complete simulation within reasonable time', async () => {
-      const colors = Array(20).fill(0).map((_, i) => `hsl(${i * 18}, 70%, 50%)`);
-      
+      const colors = Array(20)
+        .fill(0)
+        .map((_, i) => `hsl(${i * 18}, 70%, 50%)`);
+
       const params: SimulateColorblindnessParams = {
         colors,
         type: 'protanopia',
@@ -299,13 +311,13 @@ describe('simulateColorblindness', () => {
       const startTime = Date.now();
       const result = await simulateColorblindness(params);
       const endTime = Date.now();
-      
+
       expect(result.success).toBe(true);
       expect(endTime - startTime).toBeLessThan(1000); // Should complete within 1 second
-      
-      if (result.success) {
-        expect(result.data.results).toHaveLength(20);
-      }
+
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+      expect(data.results).toHaveLength(20);
     });
   });
 
@@ -318,21 +330,22 @@ describe('simulateColorblindness', () => {
 
       const result = await simulateColorblindness(params);
       expect(result.success).toBe(true);
-      
-      if (result.success) {
-        // Check response structure
-        expect(result.data).toHaveProperty('deficiency_type');
-        expect(result.data).toHaveProperty('severity');
-        expect(result.data).toHaveProperty('results');
-        expect(result.data).toHaveProperty('summary');
-        expect(result.data).toHaveProperty('recommendations');
-        
-        // Check metadata
-        expect(result.metadata).toHaveProperty('execution_time');
-        expect(result.metadata).toHaveProperty('colorSpaceUsed');
-        expect(result.metadata).toHaveProperty('accessibilityNotes');
-        expect(result.metadata).toHaveProperty('recommendations');
-      }
+
+      const successResult = result as ToolResponse;
+      const data = successResult.data as SimulateColorblindnessResponse;
+
+      // Check response structure
+      expect(data).toHaveProperty('deficiency_type');
+      expect(data).toHaveProperty('severity');
+      expect(data).toHaveProperty('results');
+      expect(data).toHaveProperty('summary');
+      expect(data).toHaveProperty('recommendations');
+
+      // Check metadata
+      expect(result.metadata).toHaveProperty('execution_time');
+      expect(result.metadata).toHaveProperty('color_space_used');
+      expect(result.metadata).toHaveProperty('accessibility_notes');
+      expect(result.metadata).toHaveProperty('recommendations');
     });
   });
 });

@@ -71,18 +71,24 @@ describe('ColorAnalyzer', () => {
 
       expect(ColorAnalyzer.analyzeTemperature(red).temperature).toBe('warm');
       expect(ColorAnalyzer.analyzeTemperature(orange).temperature).toBe('warm');
-      expect(ColorAnalyzer.analyzeTemperature(yellow).temperature).toBe('neutral');
-      expect(ColorAnalyzer.analyzeTemperature(green).temperature).toBe('neutral');
+      expect(ColorAnalyzer.analyzeTemperature(yellow).temperature).toBe(
+        'neutral'
+      );
+      expect(ColorAnalyzer.analyzeTemperature(green).temperature).toBe(
+        'neutral'
+      );
       expect(ColorAnalyzer.analyzeTemperature(cyan).temperature).toBe('cool');
       expect(ColorAnalyzer.analyzeTemperature(blue).temperature).toBe('cool');
       expect(ColorAnalyzer.analyzeTemperature(purple).temperature).toBe('cool');
-      expect(ColorAnalyzer.analyzeTemperature(magenta).temperature).toBe('warm');
+      expect(ColorAnalyzer.analyzeTemperature(magenta).temperature).toBe(
+        'warm'
+      );
     });
 
     test('should provide hue categories', () => {
       const red = new UnifiedColor('#FF0000');
       const blue = new UnifiedColor('#0000FF');
-      
+
       const redTemp = ColorAnalyzer.analyzeTemperature(red);
       const blueTemp = ColorAnalyzer.analyzeTemperature(blue);
 
@@ -140,8 +146,10 @@ describe('ColorAnalyzer', () => {
 
       const whiteAccessibility = ColorAnalyzer.analyzeAccessibility(white);
       const blackAccessibility = ColorAnalyzer.analyzeAccessibility(black);
-      const lightGrayAccessibility = ColorAnalyzer.analyzeAccessibility(lightGray);
-      const darkGrayAccessibility = ColorAnalyzer.analyzeAccessibility(darkGray);
+      const lightGrayAccessibility =
+        ColorAnalyzer.analyzeAccessibility(lightGray);
+      const darkGrayAccessibility =
+        ColorAnalyzer.analyzeAccessibility(darkGray);
 
       // White and black should meet all standards
       expect(whiteAccessibility.wcag_aa_normal).toBe(true);
@@ -175,7 +183,10 @@ describe('ColorAnalyzer', () => {
 
       const redBlueDistance = ColorAnalyzer.analyzeDistance(red, blue);
       const redDarkRedDistance = ColorAnalyzer.analyzeDistance(red, darkRed);
-      const identicalDistance = ColorAnalyzer.analyzeDistance(red, identicalRed);
+      const identicalDistance = ColorAnalyzer.analyzeDistance(
+        red,
+        identicalRed
+      );
 
       // Red and blue should be very different
       expect(redBlueDistance.perceptual_difference).toBe('very_different');
@@ -232,8 +243,16 @@ describe('ColorAnalyzer', () => {
       const mediumGray = new UnifiedColor('#999999');
       const white = new UnifiedColor('#FFFFFF');
 
-      const normalTextContrast = ColorAnalyzer.checkContrast(mediumGray, white, 'normal');
-      const largeTextContrast = ColorAnalyzer.checkContrast(mediumGray, white, 'large');
+      const normalTextContrast = ColorAnalyzer.checkContrast(
+        mediumGray,
+        white,
+        'normal'
+      );
+      const largeTextContrast = ColorAnalyzer.checkContrast(
+        mediumGray,
+        white,
+        'large'
+      );
 
       // Same colors should have same ratio regardless of text size
       expect(normalTextContrast.ratio).toBe(largeTextContrast.ratio);
@@ -252,7 +271,11 @@ describe('ColorAnalyzer', () => {
       const testColor = new UnifiedColor('#2563eb'); // Blue color
       const compareColor = new UnifiedColor('#dc2626'); // Red color
 
-      const analysis = ColorAnalyzer.analyzeColor(testColor, ['all'], compareColor);
+      const analysis = ColorAnalyzer.analyzeColor(
+        testColor,
+        ['all'],
+        compareColor
+      );
 
       // Should include all analysis types
       expect(analysis.brightness).toBeDefined();
@@ -267,7 +290,9 @@ describe('ColorAnalyzer', () => {
       expect(typeof analysis.brightness.is_light).toBe('boolean');
 
       // Temperature analysis
-      expect(['warm', 'cool', 'neutral']).toContain(analysis.temperature.temperature);
+      expect(['warm', 'cool', 'neutral']).toContain(
+        analysis.temperature.temperature
+      );
       expect(analysis.temperature.warmth_score).toBeGreaterThanOrEqual(-1);
       expect(analysis.temperature.warmth_score).toBeLessThanOrEqual(1);
 
@@ -306,7 +331,11 @@ describe('ColorAnalyzer', () => {
       const compareColor = new UnifiedColor('#33FF57');
 
       const startTime = Date.now();
-      const analysis = ColorAnalyzer.analyzeColor(testColor, ['all'], compareColor);
+      const analysis = ColorAnalyzer.analyzeColor(
+        testColor,
+        ['all'],
+        compareColor
+      );
       const endTime = Date.now();
 
       const executionTime = endTime - startTime;
@@ -316,12 +345,22 @@ describe('ColorAnalyzer', () => {
 
     test('should handle multiple analyses efficiently', async () => {
       const colors = [
-        '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF',
-        '#800000', '#008000', '#000080', '#808000', '#800080', '#008080'
+        '#FF0000',
+        '#00FF00',
+        '#0000FF',
+        '#FFFF00',
+        '#FF00FF',
+        '#00FFFF',
+        '#800000',
+        '#008000',
+        '#000080',
+        '#808000',
+        '#800080',
+        '#008080',
       ];
 
       const startTime = Date.now();
-      
+
       for (const colorStr of colors) {
         const color = new UnifiedColor(colorStr);
         const analysis = ColorAnalyzer.analyzeColor(color);
@@ -344,14 +383,26 @@ describe('ColorAnalyzer', () => {
       const pureGreen = new UnifiedColor('#00FF00');
       const pureBlue = new UnifiedColor('#0000FF');
 
-      const extremeColors = [pureWhite, pureBlack, pureRed, pureGreen, pureBlue];
+      const extremeColors = [
+        pureWhite,
+        pureBlack,
+        pureRed,
+        pureGreen,
+        pureBlue,
+      ];
 
       for (const color of extremeColors) {
         const analysis = ColorAnalyzer.analyzeColor(color);
-        
-        expect(analysis.brightness.perceived_brightness).toBeGreaterThanOrEqual(0);
-        expect(analysis.brightness.perceived_brightness).toBeLessThanOrEqual(255);
-        expect(analysis.brightness.relative_luminance).toBeGreaterThanOrEqual(0);
+
+        expect(analysis.brightness.perceived_brightness).toBeGreaterThanOrEqual(
+          0
+        );
+        expect(analysis.brightness.perceived_brightness).toBeLessThanOrEqual(
+          255
+        );
+        expect(analysis.brightness.relative_luminance).toBeGreaterThanOrEqual(
+          0
+        );
         expect(analysis.brightness.relative_luminance).toBeLessThanOrEqual(1);
         expect(analysis.contrast.against_white).toBeGreaterThanOrEqual(1);
         expect(analysis.contrast.against_black).toBeGreaterThanOrEqual(1);

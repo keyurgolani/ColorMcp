@@ -1,8 +1,12 @@
+// @ts-nocheck
 /**
  * Tests for optimize-for-accessibility tool
  */
 
-import { optimizeForAccessibility, OptimizeForAccessibilityParams } from '../../src/tools/optimize-for-accessibility';
+import {
+  optimizeForAccessibility,
+  OptimizeForAccessibilityParams,
+} from '../../src/tools/optimize-for-accessibility';
 import { ToolResponse, ErrorResponse } from '../../src/types/index';
 
 describe('optimizeForAccessibility', () => {
@@ -14,10 +18,9 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(false);
-      
-      if (!result.success) {
-        expect(result.error.code).toBe('MISSING_PALETTE');
-      }
+
+      const errorResult = result as any;
+      expect(errorResult.error.code).toBe('MISSING_PALETTE');
     });
 
     test('should require non-empty palette array', async () => {
@@ -28,10 +31,9 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(false);
-      
-      if (!result.success) {
-        expect(result.error.code).toBe('MISSING_PALETTE');
-      }
+
+      const errorResult = result as any;
+      expect(errorResult.error.code).toBe('MISSING_PALETTE');
     });
 
     test('should require use_cases array', async () => {
@@ -41,10 +43,9 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(false);
-      
-      if (!result.success) {
-        expect(result.error.code).toBe('MISSING_USE_CASES');
-      }
+
+      const errorResult = result as any;
+      expect(errorResult.error.code).toBe('MISSING_USE_CASES');
     });
 
     test('should validate use_cases values', async () => {
@@ -55,10 +56,9 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(false);
-      
-      if (!result.success) {
-        expect(result.error.code).toBe('INVALID_USE_CASES');
-      }
+
+      const errorResult = result as any;
+      expect(errorResult.error.code).toBe('INVALID_USE_CASES');
     });
 
     test('should validate color formats', async () => {
@@ -69,10 +69,9 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(false);
-      
-      if (!result.success) {
-        expect(result.error.code).toBe('INVALID_COLOR_FORMAT');
-      }
+
+      const errorResult = result as any;
+      expect(errorResult.error.code).toBe('INVALID_COLOR_FORMAT');
     });
   });
 
@@ -86,20 +85,19 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
-      if (result.success) {
-        expect(result.data.optimization_results).toHaveLength(2);
-        
-        result.data.optimization_results.forEach(optimization => {
-          expect(optimization.use_case).toBe('text');
-          expect(optimization.optimized_color).toMatch(/^#[0-9A-F]{6}$/i);
-          
-          // Text colors should generally be darker
-          if (optimization.optimization_applied) {
-            expect(optimization.changes_made.length).toBeGreaterThan(0);
-          }
-        });
-      }
+
+      const successResult = result as any;
+      expect(successResult.data.optimization_results).toHaveLength(2);
+
+      successResult.data.optimization_results.forEach((optimization: any) => {
+        expect(optimization.use_case).toBe('text');
+        expect(optimization.optimized_color).toMatch(/^#[0-9A-F]{6}$/i);
+
+        // Text colors should generally be darker
+        if (optimization.optimization_applied) {
+          expect(optimization.changes_made.length).toBeGreaterThan(0);
+        }
+      });
     });
 
     test('should optimize colors for background use case', async () => {
@@ -111,19 +109,18 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
-      if (result.success) {
-        expect(result.data.optimization_results).toHaveLength(2);
-        
-        result.data.optimization_results.forEach(optimization => {
-          expect(optimization.use_case).toBe('background');
-          
-          // Background colors should generally be lighter and less saturated
-          if (optimization.optimization_applied) {
-            expect(optimization.changes_made.length).toBeGreaterThan(0);
-          }
-        });
-      }
+
+      const successResult = result as any;
+      expect(successResult.data.optimization_results).toHaveLength(2);
+
+      successResult.data.optimization_results.forEach((optimization: any) => {
+        expect(optimization.use_case).toBe('background');
+
+        // Background colors should generally be lighter and less saturated
+        if (optimization.optimization_applied) {
+          expect(optimization.changes_made.length).toBeGreaterThan(0);
+        }
+      });
     });
 
     test('should optimize colors for accent use case', async () => {
@@ -135,18 +132,21 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.data.optimization_results).toHaveLength(1);
-        
+
         const optimization = result.data.optimization_results[0];
         expect(optimization.use_case).toBe('accent');
-        
+
         // Accent colors should be more vibrant
         if (optimization.optimization_applied) {
-          expect(optimization.changes_made.some(change => 
-            change.includes('Saturation') || change.includes('Lightness')
-          )).toBe(true);
+          expect(
+            optimization.changes_made.some(
+              change =>
+                change.includes('Saturation') || change.includes('Lightness')
+            )
+          ).toBe(true);
         }
       }
     });
@@ -160,18 +160,18 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.data.optimization_results).toHaveLength(1);
-        
+
         const optimization = result.data.optimization_results[0];
         expect(optimization.use_case).toBe('interactive');
-        
+
         // Interactive elements should have good contrast
         if (optimization.optimization_applied) {
-          expect(optimization.contrast_improvement.after).toBeGreaterThanOrEqual(
-            optimization.contrast_improvement.before
-          );
+          expect(
+            optimization.contrast_improvement.after
+          ).toBeGreaterThanOrEqual(optimization.contrast_improvement.before);
         }
       }
     });
@@ -185,10 +185,10 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.data.optimization_results).toHaveLength(3);
-        
+
         const useCases = result.data.optimization_results.map(r => r.use_case);
         expect(useCases).toContain('text');
         expect(useCases).toContain('background');
@@ -205,15 +205,17 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.data.target_standard).toBe('WCAG_AAA');
-        
+
         const optimization = result.data.optimization_results[0];
-        
+
         // AAA standard should result in higher contrast requirements
         if (optimization.optimization_applied) {
-          expect(optimization.accessibility_compliance.wcag_aaa_after).toBe(true);
+          expect(optimization.accessibility_compliance.wcag_aaa_after).toBe(
+            true
+          );
         }
       }
     });
@@ -227,12 +229,12 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.data.preserve_hue).toBe(true);
-        
+
         const optimization = result.data.optimization_results[0];
-        
+
         // Hue should be preserved (minimal change)
         expect(optimization.hue_preservation.hue_difference).toBeLessThan(10);
       }
@@ -247,16 +249,18 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
-        const redOptimization = result.data.optimization_results.find(r => 
-          r.original_color === '#FF0000'
+        const redOptimization = result.data.optimization_results.find(
+          r => r.original_color === '#FF0000'
         );
-        
+
         expect(redOptimization).toBeDefined();
         if (redOptimization) {
           expect(redOptimization.optimization_applied).toBe(false);
-          expect(redOptimization.changes_made).toContain('Color preserved as brand color');
+          expect(redOptimization.changes_made).toContain(
+            'Color preserved as brand color'
+          );
         }
       }
     });
@@ -272,18 +276,18 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
-        expect(result.data.summary.compliance_rate_after).toBeGreaterThanOrEqual(
-          result.data.summary.compliance_rate_before
-        );
-        
+        expect(
+          result.data.summary.compliance_rate_after
+        ).toBeGreaterThanOrEqual(result.data.summary.compliance_rate_before);
+
         // Should show improvement in contrast
         result.data.optimization_results.forEach(optimization => {
           if (optimization.optimization_applied) {
-            expect(optimization.contrast_improvement.after).toBeGreaterThanOrEqual(
-              optimization.contrast_improvement.before
-            );
+            expect(
+              optimization.contrast_improvement.after
+            ).toBeGreaterThanOrEqual(optimization.contrast_improvement.before);
           }
         });
       }
@@ -298,10 +302,10 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.data.recommended_pairings).toBeInstanceOf(Array);
-        
+
         if (result.data.recommended_pairings.length > 0) {
           result.data.recommended_pairings.forEach(pairing => {
             expect(pairing).toHaveProperty('foreground');
@@ -323,7 +327,7 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.data.accessibility_notes).toBeInstanceOf(Array);
         expect(result.data.recommendations).toBeInstanceOf(Array);
@@ -342,11 +346,13 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         // Should not need optimization
         result.data.optimization_results.forEach(optimization => {
-          expect(optimization.accessibility_compliance.wcag_aa_before).toBe(true);
+          expect(optimization.accessibility_compliance.wcag_aa_before).toBe(
+            true
+          );
         });
       }
     });
@@ -360,10 +366,10 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.data.optimization_results.length).toBeGreaterThan(0);
-        
+
         // All optimized colors should be valid hex codes
         result.data.optimization_results.forEach(optimization => {
           expect(optimization.optimized_color).toMatch(/^#[0-9A-F]{6}$/i);
@@ -380,10 +386,10 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         expect(result.data.optimization_results).toHaveLength(3);
-        
+
         // All should have valid hex output
         result.data.optimization_results.forEach(optimization => {
           expect(optimization.optimized_color).toMatch(/^#[0-9A-F]{6}$/i);
@@ -394,8 +400,10 @@ describe('optimizeForAccessibility', () => {
 
   describe('Performance', () => {
     test('should complete optimization within reasonable time', async () => {
-      const colors = Array(10).fill(0).map((_, i) => `hsl(${i * 36}, 70%, 50%)`);
-      
+      const colors = Array(10)
+        .fill(0)
+        .map((_, i) => `hsl(${i * 36}, 70%, 50%)`);
+
       const params: OptimizeForAccessibilityParams = {
         palette: colors,
         use_cases: ['text', 'background'],
@@ -405,10 +413,10 @@ describe('optimizeForAccessibility', () => {
       const startTime = Date.now();
       const result = await optimizeForAccessibility(params);
       const endTime = Date.now();
-      
+
       expect(result.success).toBe(true);
       expect(endTime - startTime).toBeLessThan(2000); // Should complete within 2 seconds
-      
+
       if (result.success) {
         expect(result.data.optimization_results).toHaveLength(20); // 10 colors × 2 use cases
       }
@@ -425,7 +433,7 @@ describe('optimizeForAccessibility', () => {
 
       const result = await optimizeForAccessibility(params);
       expect(result.success).toBe(true);
-      
+
       if (result.success) {
         // Check response structure
         expect(result.data).toHaveProperty('target_standard');
@@ -435,15 +443,17 @@ describe('optimizeForAccessibility', () => {
         expect(result.data).toHaveProperty('recommended_pairings');
         expect(result.data).toHaveProperty('accessibility_notes');
         expect(result.data).toHaveProperty('recommendations');
-        
+
         // Check summary structure
         expect(result.data.summary).toHaveProperty('total_colors');
         expect(result.data.summary).toHaveProperty('colors_optimized');
         expect(result.data.summary).toHaveProperty('colors_preserved');
-        expect(result.data.summary).toHaveProperty('average_contrast_improvement');
+        expect(result.data.summary).toHaveProperty(
+          'average_contrast_improvement'
+        );
         expect(result.data.summary).toHaveProperty('compliance_rate_before');
         expect(result.data.summary).toHaveProperty('compliance_rate_after');
-        
+
         // Check metadata
         expect(result.metadata).toHaveProperty('execution_time');
         expect(result.metadata).toHaveProperty('colorSpaceUsed');

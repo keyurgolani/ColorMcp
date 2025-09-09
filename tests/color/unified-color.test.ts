@@ -144,7 +144,9 @@ describe('UnifiedColor', () => {
 
     test('should convert to LAB format', () => {
       const labResult = redColor.toFormat('lab', 2);
-      expect(labResult).toMatch(/^lab\(\d+\.\d{2}, -?\d+\.\d{2}, -?\d+\.\d{2}\)$/);
+      expect(labResult).toMatch(
+        /^lab\(\d+\.\d{2}, -?\d+\.\d{2}, -?\d+\.\d{2}\)$/
+      );
     });
 
     test('should convert to XYZ format', () => {
@@ -161,16 +163,22 @@ describe('UnifiedColor', () => {
     });
 
     test('should convert to Swift format', () => {
-      expect(redColor.toFormat('swift', 3)).toBe('UIColor(red: 1.000, green: 0.000, blue: 0.000, alpha: 1.000)');
+      expect(redColor.toFormat('swift', 3)).toBe(
+        'UIColor(red: 1.000, green: 0.000, blue: 0.000, alpha: 1.000)'
+      );
     });
 
     test('should convert to Android format', () => {
-      expect(redColor.toFormat('android')).toBe('Color.parseColor("#FFFF0000")');
+      expect(redColor.toFormat('android')).toBe(
+        'Color.parseColor("#FFFF0000")'
+      );
     });
 
     test('should convert to Android format with alpha', () => {
       const colorWithAlpha = UnifiedColor.fromRgb(255, 0, 0, 0.5);
-      expect(colorWithAlpha.toFormat('android')).toBe('Color.parseColor("#80FF0000")');
+      expect(colorWithAlpha.toFormat('android')).toBe(
+        'Color.parseColor("#80FF0000")'
+      );
     });
 
     test('should convert to Flutter format', () => {
@@ -189,12 +197,16 @@ describe('UnifiedColor', () => {
 
     test('should convert to OKLAB format', () => {
       const oklabResult = redColor.toFormat('oklab', 3);
-      expect(oklabResult).toMatch(/^oklab\(\d+\.\d{3}, -?\d+\.\d{3}, -?\d+\.\d{3}\)$/);
+      expect(oklabResult).toMatch(
+        /^oklab\(\d+\.\d{3}, -?\d+\.\d{3}, -?\d+\.\d{3}\)$/
+      );
     });
 
     test('should convert to OKLCH format', () => {
       const oklchResult = redColor.toFormat('oklch', 3);
-      expect(oklchResult).toMatch(/^oklch\(\d+\.\d{3}, \d+\.\d{3}, \d+\.\d{3}\)$/);
+      expect(oklchResult).toMatch(
+        /^oklch\(\d+\.\d{3}, \d+\.\d{3}, \d+\.\d{3}\)$/
+      );
     });
 
     test('should convert to named color format', () => {
@@ -227,7 +239,9 @@ describe('UnifiedColor', () => {
     });
 
     test('should throw error for unsupported format', () => {
-      expect(() => redColor.toFormat('unsupported' as any)).toThrow('Unsupported output format');
+      expect(() => redColor.toFormat('unsupported' as any)).toThrow(
+        'Unsupported output format'
+      );
     });
   });
 
@@ -235,13 +249,17 @@ describe('UnifiedColor', () => {
     test('should create CSS variables with custom names', () => {
       const color = new UnifiedColor('#FF0000');
       expect(color.toCSSVariable('primary')).toBe('--primary: #ff0000;');
-      expect(color.toCSSVariable('accent-color')).toBe('--accent-color: #ff0000;');
+      expect(color.toCSSVariable('accent-color')).toBe(
+        '--accent-color: #ff0000;'
+      );
     });
 
     test('should create SCSS variables with custom names', () => {
       const color = new UnifiedColor('#FF0000');
       expect(color.toSCSSVariable('primary')).toBe('$primary: #ff0000;');
-      expect(color.toSCSSVariable('accent_color')).toBe('$accent_color: #ff0000;');
+      expect(color.toSCSSVariable('accent_color')).toBe(
+        '$accent_color: #ff0000;'
+      );
     });
   });
 
@@ -299,11 +317,11 @@ describe('UnifiedColor', () => {
     test('should maintain precision in conversions', () => {
       const originalHex = '#FF8040';
       const color = new UnifiedColor(originalHex);
-      
+
       // Convert through multiple formats and back
       const rgb = color.rgb;
       const backToHex = UnifiedColor.fromRgb(rgb.r, rgb.g, rgb.b).hex;
-      
+
       expect(backToHex).toBe(originalHex.toLowerCase());
     });
 
@@ -312,7 +330,7 @@ describe('UnifiedColor', () => {
       const pureRed = new UnifiedColor('#FF0000');
       const pureGreen = new UnifiedColor('#00FF00');
       const pureBlue = new UnifiedColor('#0000FF');
-      
+
       expect(pureRed.hsl.h).toBeCloseTo(0, 1);
       expect(pureGreen.hsl.h).toBeCloseTo(120, 1);
       expect(pureBlue.hsl.h).toBeCloseTo(240, 1);
@@ -321,7 +339,7 @@ describe('UnifiedColor', () => {
     test('should handle grayscale colors correctly', () => {
       const gray = new UnifiedColor('#808080');
       const cmyk = gray.cmyk;
-      
+
       // Grayscale should have equal CMY values
       expect(cmyk.c).toBeCloseTo(cmyk.m, 1);
       expect(cmyk.m).toBeCloseTo(cmyk.y, 1);

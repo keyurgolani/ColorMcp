@@ -40,6 +40,8 @@ export function createSuccessResponse(
 
   if (options?.colorSpaceUsed !== undefined) {
     metadata.color_space_used = options.colorSpaceUsed;
+    // Also set camelCase version for backward compatibility
+    (metadata as any).colorSpaceUsed = options.colorSpaceUsed;
   }
   if (options?.detectedInputFormat !== undefined) {
     (metadata as any).detectedInputFormat = options.detectedInputFormat;

@@ -19,17 +19,17 @@ describe('Color Conversion Performance Benchmarks', () => {
         { from: 'rgb(255, 0, 0)', to: 'hsl' },
         { from: 'hsl(0, 100%, 50%)', to: 'hex' },
         { from: '#FF0000', to: 'hsv' },
-        { from: 'hsv(0, 100%, 100%)', to: 'hex' }
+        { from: 'hsv(0, 100%, 100%)', to: 'hex' },
       ];
 
       for (const { from, to } of basicConversions) {
         const startTime = performance.now();
-        
+
         const result = await convertColorTool.handler({
           color: from,
-          output_format: to
+          output_format: to,
         });
-        
+
         const endTime = performance.now();
         const executionTime = endTime - startTime;
 
@@ -48,17 +48,17 @@ describe('Color Conversion Performance Benchmarks', () => {
         { from: 'oklch(0.628, 0.258, 29.23)', to: 'hex' },
         { from: '#FF0000', to: 'hwb' },
         { from: 'hwb(0, 0%, 0%)', to: 'cmyk' },
-        { from: 'cmyk(0%, 100%, 100%, 0%)', to: 'hex' }
+        { from: 'cmyk(0%, 100%, 100%, 0%)', to: 'hex' },
       ];
 
       for (const { from, to } of advancedConversions) {
         const startTime = performance.now();
-        
+
         const result = await convertColorTool.handler({
           color: from,
-          output_format: to
+          output_format: to,
         });
-        
+
         const endTime = performance.now();
         const executionTime = endTime - startTime;
 
@@ -74,17 +74,17 @@ describe('Color Conversion Performance Benchmarks', () => {
         { from: '#FF0000', to: 'flutter' },
         { from: '#FF0000', to: 'tailwind' },
         { from: '#FF0000', to: 'css-var' },
-        { from: '#FF0000', to: 'scss-var' }
+        { from: '#FF0000', to: 'scss-var' },
       ];
 
       for (const { from, to } of frameworkConversions) {
         const startTime = performance.now();
-        
+
         const result = await convertColorTool.handler({
           color: from,
-          output_format: to
+          output_format: to,
         });
-        
+
         const endTime = performance.now();
         const executionTime = endTime - startTime;
 
@@ -100,18 +100,18 @@ describe('Color Conversion Performance Benchmarks', () => {
         { from: '#FF8040', to: 'lch', precision: 6 },
         { from: '#FF8040', to: 'oklab', precision: 10 },
         { from: '#FF8040', to: 'oklch', precision: 8 },
-        { from: '#FF8040', to: 'hsl', precision: 5 }
+        { from: '#FF8040', to: 'hsl', precision: 5 },
       ];
 
       for (const { from, to, precision } of highPrecisionConversions) {
         const startTime = performance.now();
-        
+
         const result = await convertColorTool.handler({
           color: from,
           output_format: to,
-          precision
+          precision,
         });
-        
+
         const endTime = performance.now();
         const executionTime = endTime - startTime;
 
@@ -131,11 +131,13 @@ describe('Color Conversion Performance Benchmarks', () => {
       for (let i = 0; i < batchSize; i++) {
         const hue = (i * 360) / batchSize;
         const color = `hsl(${hue}, 70%, 50%)`;
-        
-        promises.push(convertColorTool.handler({
-          color,
-          output_format: 'hex'
-        }));
+
+        promises.push(
+          convertColorTool.handler({
+            color,
+            output_format: 'hex',
+          })
+        );
       }
 
       const results = await Promise.all(promises);
@@ -149,7 +151,18 @@ describe('Color Conversion Performance Benchmarks', () => {
     });
 
     test('should handle mixed format batch conversions efficiently', async () => {
-      const formats = ['hex', 'rgb', 'hsl', 'hsv', 'lab', 'xyz', 'lch', 'swift', 'android', 'flutter'];
+      const formats = [
+        'hex',
+        'rgb',
+        'hsl',
+        'hsv',
+        'lab',
+        'xyz',
+        'lch',
+        'swift',
+        'android',
+        'flutter',
+      ];
       const batchSize = 50;
       const promises = [];
 
@@ -159,11 +172,13 @@ describe('Color Conversion Performance Benchmarks', () => {
         const hue = (i * 360) / batchSize;
         const color = `hsl(${hue}, 70%, 50%)`;
         const outputFormat = formats[i % formats.length];
-        
-        promises.push(convertColorTool.handler({
-          color,
-          output_format: outputFormat
-        }));
+
+        promises.push(
+          convertColorTool.handler({
+            color,
+            output_format: outputFormat,
+          })
+        );
       }
 
       const results = await Promise.all(promises);
@@ -185,17 +200,20 @@ describe('Color Conversion Performance Benchmarks', () => {
 
       for (let batch = 0; batch < concurrentBatches; batch++) {
         const batchConversions = [];
-        
+
         for (let i = 0; i < batchSize; i++) {
-          const hue = ((batch * batchSize + i) * 360) / (concurrentBatches * batchSize);
+          const hue =
+            ((batch * batchSize + i) * 360) / (concurrentBatches * batchSize);
           const color = `hsl(${hue}, 70%, 50%)`;
-          
-          batchConversions.push(convertColorTool.handler({
-            color,
-            output_format: 'rgb'
-          }));
+
+          batchConversions.push(
+            convertColorTool.handler({
+              color,
+              output_format: 'rgb',
+            })
+          );
         }
-        
+
         batchPromises.push(Promise.all(batchConversions));
       }
 
@@ -221,15 +239,17 @@ describe('Color Conversion Performance Benchmarks', () => {
       // Perform multiple batches to test for memory leaks
       for (let batch = 0; batch < 5; batch++) {
         const promises = [];
-        
+
         for (let i = 0; i < batchSize; i++) {
           const hue = (i * 360) / batchSize;
           const color = `hsl(${hue}, 70%, 50%)`;
-          
-          promises.push(convertColorTool.handler({
-            color,
-            output_format: 'lab'
-          }));
+
+          promises.push(
+            convertColorTool.handler({
+              color,
+              output_format: 'lab',
+            })
+          );
         }
 
         const results = await Promise.all(promises);
@@ -253,11 +273,13 @@ describe('Color Conversion Performance Benchmarks', () => {
 
       const highPrecisionTests = [];
       for (let i = 0; i < 50; i++) {
-        highPrecisionTests.push(convertColorTool.handler({
-          color: `hsl(${i * 7}, 70%, 50%)`,
-          output_format: 'lab',
-          precision: 10
-        }));
+        highPrecisionTests.push(
+          convertColorTool.handler({
+            color: `hsl(${i * 7}, 70%, 50%)`,
+            output_format: 'lab',
+            precision: 10,
+          })
+        );
       }
 
       const results = await Promise.all(highPrecisionTests);
@@ -289,11 +311,13 @@ describe('Color Conversion Performance Benchmarks', () => {
           const hue = (colorIndex * 360) / stressTestSize;
           const saturation = 50 + (colorIndex % 50);
           const lightness = 30 + (colorIndex % 40);
-          
-          chunk.push(convertColorTool.handler({
-            color: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
-            output_format: 'hex'
-          }));
+
+          chunk.push(
+            convertColorTool.handler({
+              color: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+              output_format: 'hex',
+            })
+          );
         }
 
         const chunkResults = await Promise.all(chunk);
@@ -306,7 +330,7 @@ describe('Color Conversion Performance Benchmarks', () => {
 
       expect(results.every(r => r.success)).toBe(true);
       expect(averageTime).toBeLessThan(AVERAGE_CONVERSION_THRESHOLD);
-      
+
       // Total time should be reasonable even for stress test
       expect(totalTime).toBeLessThan(10000); // 10 seconds max
     });
@@ -322,9 +346,9 @@ describe('Color Conversion Performance Benchmarks', () => {
         const hue = (i * 360) / rapidTestSize;
         const result = await convertColorTool.handler({
           color: `hsl(${hue}, 70%, 50%)`,
-          output_format: 'rgb'
+          output_format: 'rgb',
         });
-        
+
         results.push(result);
       }
 
@@ -351,7 +375,7 @@ describe('Color Conversion Performance Benchmarks', () => {
         { type: 'oklch', color: 'oklch(0.628, 0.258, 29.23)' },
         { type: 'hwb', color: 'hwb(0, 0%, 0%)' },
         { type: 'cmyk', color: 'cmyk(0%, 100%, 100%, 0%)' },
-        { type: 'named', color: 'red' }
+        { type: 'named', color: 'red' },
       ];
 
       const performanceResults = [];
@@ -362,12 +386,12 @@ describe('Color Conversion Performance Benchmarks', () => {
 
         for (let i = 0; i < iterations; i++) {
           const startTime = performance.now();
-          
+
           const result = await convertColorTool.handler({
             color,
-            output_format: 'hex'
+            output_format: 'hex',
           });
-          
+
           const endTime = performance.now();
           const executionTime = endTime - startTime;
 
@@ -375,7 +399,8 @@ describe('Color Conversion Performance Benchmarks', () => {
           times.push(executionTime);
         }
 
-        const averageTime = times.reduce((sum, time) => sum + time, 0) / iterations;
+        const averageTime =
+          times.reduce((sum, time) => sum + time, 0) / iterations;
         const maxTime = Math.max(...times);
         const minTime = Math.min(...times);
 
@@ -384,7 +409,7 @@ describe('Color Conversion Performance Benchmarks', () => {
           averageTime,
           maxTime,
           minTime,
-          variance: maxTime - minTime
+          variance: maxTime - minTime,
         });
 
         // Each input type should perform consistently
@@ -394,7 +419,8 @@ describe('Color Conversion Performance Benchmarks', () => {
 
       // Performance should be relatively consistent across input types
       const averageTimes = performanceResults.map(r => r.averageTime);
-      const overallAverage = averageTimes.reduce((sum, time) => sum + time, 0) / averageTimes.length;
+      const overallAverage =
+        averageTimes.reduce((sum, time) => sum + time, 0) / averageTimes.length;
       const maxVariance = Math.max(...averageTimes) - Math.min(...averageTimes);
 
       // Variance between different input types shouldn't be too large
@@ -403,9 +429,27 @@ describe('Color Conversion Performance Benchmarks', () => {
 
     test('should maintain performance with different output formats', async () => {
       const outputFormats = [
-        'hex', 'rgb', 'rgba', 'hsl', 'hsla', 'hsv', 'hsva', 'hwb',
-        'cmyk', 'lab', 'xyz', 'lch', 'oklab', 'oklch', 'named',
-        'css-var', 'scss-var', 'tailwind', 'swift', 'android', 'flutter'
+        'hex',
+        'rgb',
+        'rgba',
+        'hsl',
+        'hsla',
+        'hsv',
+        'hsva',
+        'hwb',
+        'cmyk',
+        'lab',
+        'xyz',
+        'lch',
+        'oklab',
+        'oklch',
+        'named',
+        'css-var',
+        'scss-var',
+        'tailwind',
+        'swift',
+        'android',
+        'flutter',
       ];
 
       const performanceResults = [];
@@ -416,12 +460,12 @@ describe('Color Conversion Performance Benchmarks', () => {
 
         for (let i = 0; i < iterations; i++) {
           const startTime = performance.now();
-          
+
           const result = await convertColorTool.handler({
             color: '#FF0000',
-            output_format: format
+            output_format: format,
           });
-          
+
           const endTime = performance.now();
           const executionTime = endTime - startTime;
 
@@ -429,7 +473,8 @@ describe('Color Conversion Performance Benchmarks', () => {
           times.push(executionTime);
         }
 
-        const averageTime = times.reduce((sum, time) => sum + time, 0) / iterations;
+        const averageTime =
+          times.reduce((sum, time) => sum + time, 0) / iterations;
         performanceResults.push({ format, averageTime });
 
         // Each output format should perform under threshold

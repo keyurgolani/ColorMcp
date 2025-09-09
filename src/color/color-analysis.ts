@@ -47,7 +47,12 @@ export interface DistanceAnalysis {
   cie76: number;
   cie94: number;
   cie2000: number;
-  perceptual_difference: 'identical' | 'very_similar' | 'similar' | 'different' | 'very_different';
+  perceptual_difference:
+    | 'identical'
+    | 'very_similar'
+    | 'similar'
+    | 'different'
+    | 'very_different';
 }
 
 export class ColorAnalyzer {
@@ -79,13 +84,15 @@ export class ColorAnalyzer {
    */
   static analyzeBrightness(color: UnifiedColor): BrightnessAnalysis {
     const rgb = color.rgb;
-    
+
     // Perceived brightness formula: 0.299×R + 0.587×G + 0.114×B
-    const perceivedBrightness = Math.round(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
-    
+    const perceivedBrightness = Math.round(
+      0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b
+    );
+
     // Calculate relative luminance for WCAG calculations
     const relativeLuminance = this.calculateRelativeLuminance(rgb);
-    
+
     // Categorize brightness
     let brightnessCategory: BrightnessAnalysis['brightness_category'];
     if (perceivedBrightness < 51) {
@@ -114,7 +121,7 @@ export class ColorAnalyzer {
   static analyzeTemperature(color: UnifiedColor): TemperatureAnalysis {
     const hsl = color.hsl;
     const hue = hsl.h;
-    
+
     let temperature: TemperatureAnalysis['temperature'];
     let hueCategory: string;
     let kelvinApproximation: number;
@@ -176,14 +183,14 @@ export class ColorAnalyzer {
    */
   static analyzeContrast(color: UnifiedColor): ContrastAnalysis {
     const luminance = this.calculateRelativeLuminance(color.rgb);
-    
+
     // WCAG contrast formula: (L1 + 0.05) / (L2 + 0.05)
     const whiteLuminance = 1.0;
     const blackLuminance = 0.0;
-    
+
     const contrastWhite = (whiteLuminance + 0.05) / (luminance + 0.05);
     const contrastBlack = (luminance + 0.05) / (blackLuminance + 0.05);
-    
+
     const bestContrast = Math.max(contrastWhite, contrastBlack);
     const bestBackground = contrastWhite > contrastBlack ? 'white' : 'black';
 
@@ -201,27 +208,33 @@ export class ColorAnalyzer {
   static analyzeAccessibility(color: UnifiedColor): AccessibilityAnalysis {
     const contrast = this.analyzeContrast(color);
     const bestContrast = contrast.best_contrast;
-    
+
     // WCAG AA standards: 4.5:1 for normal text, 3:1 for large text
     // WCAG AAA standards: 7:1 for normal text, 4.5:1 for large text
     const wcagAANormal = bestContrast >= 4.5;
     const wcagAALarge = bestContrast >= 3.0;
     const wcagAAANormal = bestContrast >= 7.0;
     const wcagAAALarge = bestContrast >= 4.5;
-    
+
     // Basic color blind safety check
     const colorBlindSafe = this.isColorBlindSafe(color);
-    
+
     // Generate recommendations
     const recommendations: string[] = [];
     if (!wcagAANormal) {
-      recommendations.push('Consider using a darker or lighter shade for better contrast');
+      recommendations.push(
+        'Consider using a darker or lighter shade for better contrast'
+      );
     }
     if (!colorBlindSafe) {
-      recommendations.push('This color may be difficult for color-blind users to distinguish');
+      recommendations.push(
+        'This color may be difficult for color-blind users to distinguish'
+      );
     }
     if (bestContrast < 3.0) {
-      recommendations.push('This color has very low contrast and should not be used for text');
+      recommendations.push(
+        'This color has very low contrast and should not be used for text'
+      );
     }
 
     return {
@@ -237,23 +250,26 @@ export class ColorAnalyzer {
   /**
    * Calculate color distance using Delta E algorithms
    */
-  static analyzeDistance(color1: UnifiedColor, color2: UnifiedColor): DistanceAnalysis {
+  static analyzeDistance(
+    color1: UnifiedColor,
+    color2: UnifiedColor
+  ): DistanceAnalysis {
     const lab1 = color1.lab;
     const lab2 = color2.lab;
-    
+
     // CIE76 Delta E (simple Euclidean distance in LAB space)
     const cie76 = Math.sqrt(
       Math.pow(lab2.l - lab1.l, 2) +
-      Math.pow(lab2.a - lab1.a, 2) +
-      Math.pow(lab2.b - lab1.b, 2)
+        Math.pow(lab2.a - lab1.a, 2) +
+        Math.pow(lab2.b - lab1.b, 2)
     );
-    
+
     // CIE94 Delta E (improved formula with weighting factors)
     const cie94 = this.calculateCIE94(lab1, lab2);
-    
+
     // CIE2000 Delta E (most accurate modern formula)
     const cie2000 = this.calculateCIE2000(lab1, lab2);
-    
+
     // Determine perceptual difference based on CIE2000 values
     let perceptualDifference: DistanceAnalysis['perceptual_difference'];
     if (cie2000 < 1) {
@@ -284,9 +300,12 @@ export class ColorAnalyzer {
     const gsRGB = rgb.g / 255;
     const bsRGB = rgb.b / 255;
 
-    const r = rsRGB <= 0.03928 ? rsRGB / 12.92 : Math.pow((rsRGB + 0.055) / 1.055, 2.4);
-    const g = gsRGB <= 0.03928 ? gsRGB / 12.92 : Math.pow((gsRGB + 0.055) / 1.055, 2.4);
-    const b = bsRGB <= 0.03928 ? bsRGB / 12.92 : Math.pow((bsRGB + 0.055) / 1.055, 2.4);
+    const r =
+      rsRGB <= 0.03928 ? rsRGB / 12.92 : Math.pow((rsRGB + 0.055) / 1.055, 2.4);
+    const g =
+      gsRGB <= 0.03928 ? gsRGB / 12.92 : Math.pow((gsRGB + 0.055) / 1.055, 2.4);
+    const b =
+      bsRGB <= 0.03928 ? bsRGB / 12.92 : Math.pow((bsRGB + 0.055) / 1.055, 2.4);
 
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
   }
@@ -296,16 +315,17 @@ export class ColorAnalyzer {
    */
   private static isColorBlindSafe(color: UnifiedColor): boolean {
     const hsl = color.hsl;
-    
+
     // Colors are generally safer if they have:
     // 1. Good contrast (handled by accessibility analysis)
     // 2. Are not purely in problematic red/green ranges
     // 3. Have sufficient lightness/darkness difference
-    
-    const isProblematicHue = (hsl.h >= 0 && hsl.h <= 60) || (hsl.h >= 90 && hsl.h <= 150);
+
+    const isProblematicHue =
+      (hsl.h >= 0 && hsl.h <= 60) || (hsl.h >= 90 && hsl.h <= 150);
     const hasSufficientSaturation = hsl.s > 30;
     const hasExtremeLightness = hsl.l < 20 || hsl.l > 80;
-    
+
     // Color is considered safer if it's not in problematic hue range,
     // or if it has low saturation, or extreme lightness
     return !isProblematicHue || !hasSufficientSaturation || hasExtremeLightness;
@@ -318,26 +338,28 @@ export class ColorAnalyzer {
     const deltaL = lab1.l - lab2.l;
     const deltaA = lab1.a - lab2.a;
     const deltaB = lab1.b - lab2.b;
-    
+
     const c1 = Math.sqrt(lab1.a * lab1.a + lab1.b * lab1.b);
     const c2 = Math.sqrt(lab2.a * lab2.a + lab2.b * lab2.b);
     const deltaC = c1 - c2;
-    
-    const deltaH = Math.sqrt(deltaA * deltaA + deltaB * deltaB - deltaC * deltaC);
-    
+
+    const deltaH = Math.sqrt(
+      deltaA * deltaA + deltaB * deltaB - deltaC * deltaC
+    );
+
     const sl = 1;
     const kc = 1;
     const kh = 1;
     const k1 = 0.045;
     const k2 = 0.015;
-    
+
     const sc = 1 + k1 * c1;
     const sh = 1 + k2 * c1;
-    
+
     return Math.sqrt(
       Math.pow(deltaL / (kc * sl), 2) +
-      Math.pow(deltaC / (kc * sc), 2) +
-      Math.pow(deltaH / (kh * sh), 2)
+        Math.pow(deltaC / (kc * sc), 2) +
+        Math.pow(deltaH / (kh * sh), 2)
     );
   }
 
@@ -350,28 +372,33 @@ export class ColorAnalyzer {
     const deltaL = lab2.l - lab1.l;
     const deltaA = lab2.a - lab1.a;
     const deltaB = lab2.b - lab1.b;
-    
+
     const c1 = Math.sqrt(lab1.a * lab1.a + lab1.b * lab1.b);
     const c2 = Math.sqrt(lab2.a * lab2.a + lab2.b * lab2.b);
     const cBar = (c1 + c2) / 2;
-    
-    const g = 0.5 * (1 - Math.sqrt(Math.pow(cBar, 7) / (Math.pow(cBar, 7) + Math.pow(25, 7))));
-    
+
+    const g =
+      0.5 *
+      (1 -
+        Math.sqrt(Math.pow(cBar, 7) / (Math.pow(cBar, 7) + Math.pow(25, 7))));
+
     const a1Prime = lab1.a * (1 + g);
     const a2Prime = lab2.a * (1 + g);
-    
+
     const c1Prime = Math.sqrt(a1Prime * a1Prime + lab1.b * lab1.b);
     const c2Prime = Math.sqrt(a2Prime * a2Prime + lab2.b * lab2.b);
-    
+
     const deltaCPrime = c2Prime - c1Prime;
-    
+
     // Simplified calculation - full CIE2000 is much more complex
-    return Math.sqrt(
-      Math.pow(deltaL, 2) +
-      Math.pow(deltaCPrime, 2) +
-      Math.pow(deltaA, 2) +
-      Math.pow(deltaB, 2)
-    ) / 2;
+    return (
+      Math.sqrt(
+        Math.pow(deltaL, 2) +
+          Math.pow(deltaCPrime, 2) +
+          Math.pow(deltaA, 2) +
+          Math.pow(deltaB, 2)
+      ) / 2
+    );
   }
 
   /**
@@ -391,19 +418,20 @@ export class ColorAnalyzer {
   } {
     const fgLuminance = this.calculateRelativeLuminance(foreground.rgb);
     const bgLuminance = this.calculateRelativeLuminance(background.rgb);
-    
-    const ratio = (Math.max(fgLuminance, bgLuminance) + 0.05) / 
-                  (Math.min(fgLuminance, bgLuminance) + 0.05);
-    
+
+    const ratio =
+      (Math.max(fgLuminance, bgLuminance) + 0.05) /
+      (Math.min(fgLuminance, bgLuminance) + 0.05);
+
     const aaThreshold = textSize === 'large' ? 3.0 : 4.5;
     const aaaThreshold = textSize === 'large' ? 4.5 : 7.0;
-    
+
     const wcagAA = ratio >= aaThreshold;
     const wcagAAA = ratio >= aaaThreshold;
-    
+
     let passes = wcagAA;
     let apcaScore: number | undefined;
-    
+
     // Calculate APCA score if requested
     if (standard === 'APCA') {
       apcaScore = this.calculateAPCA(foreground, background);
@@ -413,7 +441,7 @@ export class ColorAnalyzer {
     } else if (standard === 'WCAG_AAA') {
       passes = wcagAAA;
     }
-    
+
     const result: {
       ratio: number;
       wcag_aa: boolean;
@@ -426,11 +454,11 @@ export class ColorAnalyzer {
       wcag_aaa: wcagAAA,
       passes,
     };
-    
+
     if (apcaScore !== undefined) {
       result.apca_score = apcaScore;
     }
-    
+
     return result;
   }
 
@@ -438,24 +466,29 @@ export class ColorAnalyzer {
    * Calculate APCA (Advanced Perceptual Contrast Algorithm) score
    * Based on APCA 0.0.98G specification
    */
-  private static calculateAPCA(foreground: UnifiedColor, background: UnifiedColor): number {
+  private static calculateAPCA(
+    foreground: UnifiedColor,
+    background: UnifiedColor
+  ): number {
     // Convert to linear RGB
     const fgLinear = this.sRGBtoLinear(foreground.rgb);
     const bgLinear = this.sRGBtoLinear(background.rgb);
-    
+
     // Calculate luminance using APCA coefficients
-    const fgLum = 0.2126729 * fgLinear.r + 0.7151522 * fgLinear.g + 0.0721750 * fgLinear.b;
-    const bgLum = 0.2126729 * bgLinear.r + 0.7151522 * bgLinear.g + 0.0721750 * bgLinear.b;
-    
+    const fgLum =
+      0.2126729 * fgLinear.r + 0.7151522 * fgLinear.g + 0.072175 * fgLinear.b;
+    const bgLum =
+      0.2126729 * bgLinear.r + 0.7151522 * bgLinear.g + 0.072175 * bgLinear.b;
+
     // APCA constants
     const normBG = 0.56;
     const normTXT = 0.57;
     const revTXT = 0.62;
     const revBG = 0.65;
-    
+
     // Determine polarity and calculate contrast
     let contrast: number;
-    
+
     if (bgLum > fgLum) {
       // Light background, dark text
       const bgY = Math.pow(bgLum, normBG);
@@ -467,16 +500,14 @@ export class ColorAnalyzer {
       const fgY = Math.pow(fgLum, revTXT);
       contrast = (bgY - fgY) * 1.14;
     }
-    
+
     // Apply scaling and clamping
     if (Math.abs(contrast) < 0.1) {
       contrast = 0;
     } else {
-      contrast = contrast < 0 ? 
-        contrast - 0.027 : 
-        contrast - 0.027;
+      contrast = contrast < 0 ? contrast - 0.027 : contrast - 0.027;
     }
-    
+
     // Convert to Lc (lightness contrast) percentage
     return Math.round(contrast * 100 * 100) / 100;
   }
@@ -484,18 +515,22 @@ export class ColorAnalyzer {
   /**
    * Convert sRGB to linear RGB for APCA calculations
    */
-  private static sRGBtoLinear(rgb: { r: number; g: number; b: number }): { r: number; g: number; b: number } {
+  private static sRGBtoLinear(rgb: { r: number; g: number; b: number }): {
+    r: number;
+    g: number;
+    b: number;
+  } {
     const linearize = (channel: number): number => {
       const normalized = channel / 255;
-      return normalized <= 0.04045 ? 
-        normalized / 12.92 : 
-        Math.pow((normalized + 0.055) / 1.055, 2.4);
+      return normalized <= 0.04045
+        ? normalized / 12.92
+        : Math.pow((normalized + 0.055) / 1.055, 2.4);
     };
-    
+
     return {
       r: linearize(rgb.r),
       g: linearize(rgb.g),
-      b: linearize(rgb.b)
+      b: linearize(rgb.b),
     };
   }
 }

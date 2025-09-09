@@ -43,10 +43,12 @@
     "@modelcontextprotocol/sdk": "^1.0.0",
     "chroma-js": "^3.1.2",
     "colord": "^2.9.3",
+    "handlebars": "^4.7.8",
     "joi": "^17.11.0"
   },
   "devDependencies": {
     "@types/chroma-js": "^3.1.1",
+    "@types/handlebars": "^4.0.40",
     "@types/jest": "^29.5.8",
     "@types/node": "^20.9.0",
     "@typescript-eslint/eslint-plugin": "^6.12.0",

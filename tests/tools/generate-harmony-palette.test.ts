@@ -8,7 +8,9 @@ import { ToolResponse, ErrorResponse } from '../../src/types/index';
 describe('generateHarmonyPaletteTool', () => {
   test('should have correct tool definition', () => {
     expect(generateHarmonyPaletteTool.name).toBe('generate_harmony_palette');
-    expect(generateHarmonyPaletteTool.description).toContain('color theory harmony');
+    expect(generateHarmonyPaletteTool.description).toContain(
+      'color theory harmony'
+    );
     expect(generateHarmonyPaletteTool.parameters).toBeDefined();
     expect(generateHarmonyPaletteTool.handler).toBeDefined();
   });
@@ -21,7 +23,9 @@ describe('generateHarmonyPaletteTool', () => {
       variation: 20,
     };
 
-    const result = await generateHarmonyPaletteTool.handler(params) as ToolResponse;
+    const result = (await generateHarmonyPaletteTool.handler(
+      params
+    )) as ToolResponse;
 
     expect(result.success).toBe(true);
     expect(result.data).toBeDefined();
@@ -62,10 +66,12 @@ describe('generateHarmonyPaletteTool', () => {
       variation: 15,
     };
 
-    const result = await generateHarmonyPaletteTool.handler(params) as ToolResponse;
+    const result = (await generateHarmonyPaletteTool.handler(
+      params
+    )) as ToolResponse;
 
     expect(result.success).toBe(true);
-    
+
     const paletteData = result.data as any;
     expect(paletteData.palette).toHaveLength(5);
     expect(paletteData.metadata.harmonyType).toBe('triadic');
@@ -79,10 +85,12 @@ describe('generateHarmonyPaletteTool', () => {
       count: 4,
     };
 
-    const result = await generateHarmonyPaletteTool.handler(params) as ToolResponse;
+    const result = (await generateHarmonyPaletteTool.handler(
+      params
+    )) as ToolResponse;
 
     expect(result.success).toBe(true);
-    
+
     const paletteData = result.data as any;
     expect(paletteData.palette).toHaveLength(4);
     expect(paletteData.metadata.harmonyType).toBe('monochromatic');
@@ -96,10 +104,12 @@ describe('generateHarmonyPaletteTool', () => {
       variation: 25,
     };
 
-    const result = await generateHarmonyPaletteTool.handler(params) as ToolResponse;
+    const result = (await generateHarmonyPaletteTool.handler(
+      params
+    )) as ToolResponse;
 
     expect(result.success).toBe(true);
-    
+
     const paletteData = result.data as any;
     expect(paletteData.palette).toHaveLength(6);
     expect(paletteData.metadata.harmonyType).toBe('analogous');
@@ -113,10 +123,12 @@ describe('generateHarmonyPaletteTool', () => {
       variation: 10,
     };
 
-    const result = await generateHarmonyPaletteTool.handler(params) as ToolResponse;
+    const result = (await generateHarmonyPaletteTool.handler(
+      params
+    )) as ToolResponse;
 
     expect(result.success).toBe(true);
-    
+
     const paletteData = result.data as any;
     expect(paletteData.palette).toHaveLength(4);
     expect(paletteData.metadata.harmonyType).toBe('tetradic');
@@ -129,10 +141,12 @@ describe('generateHarmonyPaletteTool', () => {
       count: 3,
     };
 
-    const result = await generateHarmonyPaletteTool.handler(params) as ToolResponse;
+    const result = (await generateHarmonyPaletteTool.handler(
+      params
+    )) as ToolResponse;
 
     expect(result.success).toBe(true);
-    
+
     const paletteData = result.data as any;
     expect(paletteData.palette).toHaveLength(3);
     expect(paletteData.metadata.harmonyType).toBe('split_complementary');
@@ -146,10 +160,12 @@ describe('generateHarmonyPaletteTool', () => {
       variation: 30,
     };
 
-    const result = await generateHarmonyPaletteTool.handler(params) as ToolResponse;
+    const result = (await generateHarmonyPaletteTool.handler(
+      params
+    )) as ToolResponse;
 
     expect(result.success).toBe(true);
-    
+
     const paletteData = result.data as any;
     expect(paletteData.palette).toHaveLength(5);
     expect(paletteData.metadata.harmonyType).toBe('double_complementary');
@@ -161,10 +177,12 @@ describe('generateHarmonyPaletteTool', () => {
       harmony_type: 'complementary',
     };
 
-    const result = await generateHarmonyPaletteTool.handler(params) as ToolResponse;
+    const result = (await generateHarmonyPaletteTool.handler(
+      params
+    )) as ToolResponse;
 
     expect(result.success).toBe(true);
-    
+
     const paletteData = result.data as any;
     expect(paletteData.palette).toHaveLength(5); // Default count
   });
@@ -176,11 +194,13 @@ describe('generateHarmonyPaletteTool', () => {
       count: 3,
     };
 
-    const result = await generateHarmonyPaletteTool.handler(params) as ToolResponse;
+    const result = (await generateHarmonyPaletteTool.handler(
+      params
+    )) as ToolResponse;
 
     expect(result.success).toBe(true);
     expect(result.export_formats).toBeDefined();
-    
+
     const exportFormats = result.export_formats!;
     expect(exportFormats.css).toBeDefined();
     expect(exportFormats.scss).toBeDefined();
@@ -211,7 +231,9 @@ describe('generateHarmonyPaletteTool', () => {
       variation: 10,
     };
 
-    const result = await generateHarmonyPaletteTool.handler(params) as ToolResponse;
+    const result = (await generateHarmonyPaletteTool.handler(
+      params
+    )) as ToolResponse;
 
     expect(result.success).toBe(true);
     expect(result.metadata.accessibility_notes).toBeDefined();
@@ -223,9 +245,9 @@ describe('generateHarmonyPaletteTool', () => {
   test('should include harmony-specific recommendations', async () => {
     const harmonyTypes = [
       'complementary',
-      'triadic', 
+      'triadic',
       'analogous',
-      'monochromatic'
+      'monochromatic',
     ];
 
     for (const harmonyType of harmonyTypes) {
@@ -235,7 +257,9 @@ describe('generateHarmonyPaletteTool', () => {
         count: 3,
       };
 
-      const result = await generateHarmonyPaletteTool.handler(params) as ToolResponse;
+      const result = (await generateHarmonyPaletteTool.handler(
+        params
+      )) as ToolResponse;
 
       expect(result.success).toBe(true);
       expect(result.metadata.recommendations).toBeDefined();
@@ -252,11 +276,13 @@ describe('generateHarmonyPaletteTool', () => {
     };
 
     const startTime = performance.now();
-    const result = await generateHarmonyPaletteTool.handler(params) as ToolResponse;
+    const result = (await generateHarmonyPaletteTool.handler(
+      params
+    )) as ToolResponse;
     const endTime = performance.now();
 
     expect(result.success).toBe(true);
-    
+
     const executionTime = endTime - startTime;
     expect(executionTime).toBeLessThan(500); // Should be under 500ms
     expect(result.metadata.execution_time).toBeLessThan(500);
@@ -268,7 +294,9 @@ describe('generateHarmonyPaletteTool', () => {
         harmony_type: 'complementary',
       };
 
-      const result = await generateHarmonyPaletteTool.handler(params) as ErrorResponse;
+      const result = (await generateHarmonyPaletteTool.handler(
+        params
+      )) as ErrorResponse;
 
       expect(result.success).toBe(false);
       expect(result.error.code).toBe('INVALID_INPUT');
@@ -281,7 +309,9 @@ describe('generateHarmonyPaletteTool', () => {
         base_color: '#FF0000',
       };
 
-      const result = await generateHarmonyPaletteTool.handler(params) as ErrorResponse;
+      const result = (await generateHarmonyPaletteTool.handler(
+        params
+      )) as ErrorResponse;
 
       expect(result.success).toBe(false);
       expect(result.error.code).toBe('INVALID_INPUT');
@@ -294,7 +324,9 @@ describe('generateHarmonyPaletteTool', () => {
         harmony_type: 'complementary',
       };
 
-      const result = await generateHarmonyPaletteTool.handler(params) as ErrorResponse;
+      const result = (await generateHarmonyPaletteTool.handler(
+        params
+      )) as ErrorResponse;
 
       expect(result.success).toBe(false);
       expect(result.error.code).toBe('INVALID_INPUT');
@@ -307,7 +339,9 @@ describe('generateHarmonyPaletteTool', () => {
         harmony_type: 'invalid-harmony',
       };
 
-      const result = await generateHarmonyPaletteTool.handler(params) as ErrorResponse;
+      const result = (await generateHarmonyPaletteTool.handler(
+        params
+      )) as ErrorResponse;
 
       expect(result.success).toBe(false);
       expect(result.error.code).toBe('INVALID_INPUT');
@@ -321,11 +355,15 @@ describe('generateHarmonyPaletteTool', () => {
         count: 2, // Too low
       };
 
-      const result = await generateHarmonyPaletteTool.handler(params) as ErrorResponse;
+      const result = (await generateHarmonyPaletteTool.handler(
+        params
+      )) as ErrorResponse;
 
       expect(result.success).toBe(false);
       expect(result.error.code).toBe('INVALID_INPUT');
-      expect(result.error.message).toContain('count must be a number between 3 and 10');
+      expect(result.error.message).toContain(
+        'count must be a number between 3 and 10'
+      );
     });
 
     test('should return error for variation out of range', async () => {
@@ -335,17 +373,23 @@ describe('generateHarmonyPaletteTool', () => {
         variation: 150, // Too high
       };
 
-      const result = await generateHarmonyPaletteTool.handler(params) as ErrorResponse;
+      const result = (await generateHarmonyPaletteTool.handler(
+        params
+      )) as ErrorResponse;
 
       expect(result.success).toBe(false);
       expect(result.error.code).toBe('INVALID_INPUT');
-      expect(result.error.message).toContain('variation must be a number between 0 and 100');
+      expect(result.error.message).toContain(
+        'variation must be a number between 0 and 100'
+      );
     });
 
     test('should return error for non-object parameters', async () => {
       const params = 'invalid-params';
 
-      const result = await generateHarmonyPaletteTool.handler(params) as ErrorResponse;
+      const result = (await generateHarmonyPaletteTool.handler(
+        params
+      )) as ErrorResponse;
 
       expect(result.success).toBe(false);
       expect(result.error.code).toBe('INVALID_INPUT');
@@ -355,7 +399,9 @@ describe('generateHarmonyPaletteTool', () => {
     test('should return error for null parameters', async () => {
       const params = null;
 
-      const result = await generateHarmonyPaletteTool.handler(params) as ErrorResponse;
+      const result = (await generateHarmonyPaletteTool.handler(
+        params
+      )) as ErrorResponse;
 
       expect(result.success).toBe(false);
       expect(result.error.code).toBe('INVALID_INPUT');
@@ -368,7 +414,9 @@ describe('generateHarmonyPaletteTool', () => {
         harmony_type: 'complementary',
       };
 
-      const result = await generateHarmonyPaletteTool.handler(params) as ErrorResponse;
+      const result = (await generateHarmonyPaletteTool.handler(
+        params
+      )) as ErrorResponse;
 
       expect(result.success).toBe(false);
       expect(result.metadata.execution_time).toBeGreaterThanOrEqual(0);
@@ -386,7 +434,7 @@ describe('generateHarmonyPaletteTool', () => {
         'triadic',
         'tetradic',
         'split_complementary',
-        'double_complementary'
+        'double_complementary',
       ];
 
       for (const harmonyType of validHarmonyTypes) {
@@ -395,7 +443,9 @@ describe('generateHarmonyPaletteTool', () => {
           harmony_type: harmonyType,
         };
 
-        const result = await generateHarmonyPaletteTool.handler(params) as ToolResponse;
+        const result = (await generateHarmonyPaletteTool.handler(
+          params
+        )) as ToolResponse;
         expect(result.success).toBe(true);
       }
     });
@@ -408,7 +458,9 @@ describe('generateHarmonyPaletteTool', () => {
         count: 3,
       };
 
-      const minResult = await generateHarmonyPaletteTool.handler(minParams) as ToolResponse;
+      const minResult = (await generateHarmonyPaletteTool.handler(
+        minParams
+      )) as ToolResponse;
       expect(minResult.success).toBe(true);
 
       // Test maximum valid count
@@ -418,7 +470,9 @@ describe('generateHarmonyPaletteTool', () => {
         count: 10,
       };
 
-      const maxResult = await generateHarmonyPaletteTool.handler(maxParams) as ToolResponse;
+      const maxResult = (await generateHarmonyPaletteTool.handler(
+        maxParams
+      )) as ToolResponse;
       expect(maxResult.success).toBe(true);
     });
 
@@ -430,7 +484,9 @@ describe('generateHarmonyPaletteTool', () => {
         variation: 0,
       };
 
-      const minResult = await generateHarmonyPaletteTool.handler(minParams) as ToolResponse;
+      const minResult = (await generateHarmonyPaletteTool.handler(
+        minParams
+      )) as ToolResponse;
       expect(minResult.success).toBe(true);
 
       // Test maximum valid variation
@@ -440,7 +496,9 @@ describe('generateHarmonyPaletteTool', () => {
         variation: 100,
       };
 
-      const maxResult = await generateHarmonyPaletteTool.handler(maxParams) as ToolResponse;
+      const maxResult = (await generateHarmonyPaletteTool.handler(
+        maxParams
+      )) as ToolResponse;
       expect(maxResult.success).toBe(true);
     });
 
@@ -459,7 +517,9 @@ describe('generateHarmonyPaletteTool', () => {
           harmony_type: 'complementary',
         };
 
-        const result = await generateHarmonyPaletteTool.handler(params) as ToolResponse;
+        const result = (await generateHarmonyPaletteTool.handler(
+          params
+        )) as ToolResponse;
         expect(result.success).toBe(true);
       }
     });

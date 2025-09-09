@@ -2,7 +2,10 @@
  * Comprehensive tests for color harmony palette generation system
  */
 
-import { PaletteGenerator, HarmonyType } from '../../src/color/palette-generator';
+import {
+  PaletteGenerator,
+  HarmonyType,
+} from '../../src/color/palette-generator';
 
 describe('PaletteGenerator', () => {
   describe('generateHarmonyPalette', () => {
@@ -37,7 +40,7 @@ describe('PaletteGenerator', () => {
 
       // First color should be the base (red)
       expect(palette.colors[0]!.hsl.h).toBeCloseTo(0, 1);
-      
+
       // Second color should be complement (cyan, hue: 180)
       expect(palette.colors[1]!.hsl.h).toBeCloseTo(180, 10);
     });
@@ -112,11 +115,11 @@ describe('PaletteGenerator', () => {
 
       const hues = palette.colors.map(color => color.hsl.h);
       expect(hues[0]).toBeCloseTo(0, 1); // Base red
-      
+
       // Split-complementary colors should be around 150° and 210° from base
       const expectedHues = [150, 210];
       const actualSplitHues = hues.slice(1).sort((a, b) => a - b);
-      
+
       expectedHues.forEach((expectedHue, index) => {
         expect(actualSplitHues[index]).toBeCloseTo(expectedHue, 15);
       });
@@ -181,7 +184,9 @@ describe('PaletteGenerator', () => {
         count: 3,
       });
 
-      expect(palette.colors[0]!.hex.toLowerCase()).toBe(baseColor.toLowerCase());
+      expect(palette.colors[0]!.hex.toLowerCase()).toBe(
+        baseColor.toLowerCase()
+      );
     });
 
     test('should calculate relationships correctly', () => {
@@ -202,7 +207,7 @@ describe('PaletteGenerator', () => {
         expect(rel).toHaveProperty('relationship');
         expect(rel).toHaveProperty('strength');
         expect(rel).toHaveProperty('angle');
-        
+
         expect(rel.strength).toBeGreaterThanOrEqual(0);
         expect(rel.strength).toBeLessThanOrEqual(1);
       });
@@ -225,7 +230,7 @@ describe('PaletteGenerator', () => {
 
       expect(monochromaticPalette.metadata.diversity).toBeGreaterThanOrEqual(0);
       expect(monochromaticPalette.metadata.diversity).toBeLessThanOrEqual(100);
-      
+
       expect(triadicPalette.metadata.diversity).toBeGreaterThanOrEqual(0);
       expect(triadicPalette.metadata.diversity).toBeLessThanOrEqual(100);
 
@@ -245,7 +250,7 @@ describe('PaletteGenerator', () => {
 
       expect(palette.metadata.harmonyScore).toBeGreaterThanOrEqual(0);
       expect(palette.metadata.harmonyScore).toBeLessThanOrEqual(100);
-      
+
       // Perfect complementary should have high harmony score
       expect(palette.metadata.harmonyScore).toBeGreaterThanOrEqual(80);
     });
@@ -292,12 +297,7 @@ describe('PaletteGenerator', () => {
     });
 
     test('should handle different color input formats', () => {
-      const formats = [
-        '#FF0000',
-        'rgb(255, 0, 0)',
-        'hsl(0, 100%, 50%)',
-        'red',
-      ];
+      const formats = ['#FF0000', 'rgb(255, 0, 0)', 'hsl(0, 100%, 50%)', 'red'];
 
       formats.forEach(format => {
         const palette = PaletteGenerator.generateHarmonyPalette({
@@ -380,14 +380,14 @@ describe('PaletteGenerator', () => {
   describe('performance requirements', () => {
     test('should generate palette within performance requirements', () => {
       const startTime = performance.now();
-      
+
       const palette = PaletteGenerator.generateHarmonyPalette({
         baseColor: '#FF0000',
         harmonyType: 'triadic',
         count: 8,
         variation: 30,
       });
-      
+
       const endTime = performance.now();
       const executionTime = endTime - startTime;
 
@@ -398,16 +398,18 @@ describe('PaletteGenerator', () => {
 
     test('should handle multiple rapid generations', () => {
       const startTime = performance.now();
-      
+
       const palettes = [];
       for (let i = 0; i < 10; i++) {
-        palettes.push(PaletteGenerator.generateHarmonyPalette({
-          baseColor: `hsl(${i * 36}, 70%, 50%)`,
-          harmonyType: 'complementary',
-          count: 5,
-        }));
+        palettes.push(
+          PaletteGenerator.generateHarmonyPalette({
+            baseColor: `hsl(${i * 36}, 70%, 50%)`,
+            harmonyType: 'complementary',
+            count: 5,
+          })
+        );
       }
-      
+
       const endTime = performance.now();
       const totalTime = endTime - startTime;
 
@@ -427,10 +429,10 @@ describe('PaletteGenerator', () => {
 
       const hue1 = palette.colors[0]!.hsl.h;
       const hue2 = palette.colors[1]!.hsl.h;
-      
+
       let hueDiff = Math.abs(hue2 - hue1);
       if (hueDiff > 180) hueDiff = 360 - hueDiff;
-      
+
       expect(hueDiff).toBeCloseTo(180, 5);
     });
 
@@ -443,7 +445,7 @@ describe('PaletteGenerator', () => {
       });
 
       const hues = palette.colors.map(color => color.hsl.h);
-      
+
       // Check 120° spacing
       expect(Math.abs(hues[1]! - hues[0]!)).toBeCloseTo(120, 10);
       expect(Math.abs(hues[2]! - hues[0]!)).toBeCloseTo(240, 10);
@@ -458,7 +460,7 @@ describe('PaletteGenerator', () => {
       });
 
       const baseHue = palette.colors[0]!.hsl.h;
-      
+
       palette.colors.slice(1).forEach(color => {
         let hueDiff = Math.abs(color.hsl.h - baseHue);
         if (hueDiff > 180) hueDiff = 360 - hueDiff;
@@ -475,7 +477,7 @@ describe('PaletteGenerator', () => {
       });
 
       const baseHue = palette.colors[0]!.hsl.h;
-      
+
       palette.colors.forEach(color => {
         expect(color.hsl.h).toBeCloseTo(baseHue, 1);
       });

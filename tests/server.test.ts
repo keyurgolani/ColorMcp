@@ -88,7 +88,7 @@ describe('ColorServer', () => {
     it('should handle tool not found error', () => {
       const tools = toolRegistry.getAllTools();
       expect(tools.length).toBeGreaterThan(0);
-      
+
       const nonExistentTool = toolRegistry.getTool('non-existent-tool');
       expect(nonExistentTool).toBeUndefined();
     });

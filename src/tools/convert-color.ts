@@ -37,16 +37,16 @@ function convertColor(
 ): ConversionResult {
   // Parse the input color
   const parseResult = ColorParser.parse(color);
-  
+
   if (!parseResult.success || !parseResult.color) {
     throw new Error(parseResult.error || 'Failed to parse color');
   }
 
   const unifiedColor = parseResult.color;
-  
+
   // Convert to the requested format
   const converted = unifiedColor.toFormat(outputFormat, precision);
-  
+
   // Prepare result
   const result: ConversionResult = {
     original: color,
@@ -71,13 +71,15 @@ function convertColor(
 
 export const convertColorTool: ToolHandler = {
   name: 'convert_color',
-  description: 'Convert colors between different formats with high precision and comprehensive format support',
+  description:
+    'Convert colors between different formats with high precision and comprehensive format support',
   parameters: {
     type: 'object',
     properties: {
       color: {
         type: 'string',
-        description: 'Input color in any supported format (HEX, RGB, HSL, HSV, CMYK, LAB, XYZ, named colors, etc.)',
+        description:
+          'Input color in any supported format (HEX, RGB, HSL, HSV, CMYK, LAB, XYZ, named colors, etc.)',
         examples: [
           '#FF0000',
           'rgb(255, 0, 0)',
@@ -86,7 +88,7 @@ export const convertColorTool: ToolHandler = {
           'cmyk(0%, 100%, 100%, 0%)',
           'lab(53.23, 80.11, 67.22)',
           'red',
-          '255, 0, 0'
+          '255, 0, 0',
         ],
       },
       output_format: {
@@ -158,7 +160,12 @@ export const convertColorTool: ToolHandler = {
       });
 
       // Perform color conversion
-      const result = convertColor(color, output_format, precision !== undefined ? precision : 2, variable_name);
+      const result = convertColor(
+        color,
+        output_format,
+        precision !== undefined ? precision : 2,
+        variable_name
+      );
 
       const executionTime = Date.now() - startTime;
 
@@ -166,40 +173,44 @@ export const convertColorTool: ToolHandler = {
       const parseResult = ColorParser.parse(color);
       const colorMetadata = parseResult.color?.metadata;
 
-      logger.info(`Successfully converted color "${color}" to ${output_format}`, {
-        tool: 'convert_color',
-        executionTime,
-      });
-
-      return createSuccessResponse(
-        'convert_color',
-        result,
-        executionTime,
+      logger.info(
+        `Successfully converted color "${color}" to ${output_format}`,
         {
-          colorSpaceUsed: 'sRGB',
-          detectedInputFormat: parseResult.detectedFormat || 'unknown',
-          ...(colorMetadata ? {
-            colorProperties: {
-              brightness: colorMetadata.brightness,
-              temperature: colorMetadata.temperature,
-              wcagAA: colorMetadata.accessibility.wcagAA,
-              wcagAAA: colorMetadata.accessibility.wcagAAA,
-            }
-          } : {}),
-          accessibilityNotes: colorMetadata ? [
-            `Brightness: ${colorMetadata.brightness}/255`,
-            `Color temperature: ${colorMetadata.temperature}`,
-            `WCAG AA compliant: ${colorMetadata.accessibility.wcagAA ? 'Yes' : 'No'}`,
-            `WCAG AAA compliant: ${colorMetadata.accessibility.wcagAAA ? 'Yes' : 'No'}`,
-          ] : [],
-          recommendations: [
-            'For better color accuracy in professional applications, consider using LAB color space',
-            'Use higher precision (3-4 decimal places) for color matching applications',
-            'Test color accessibility with the check_contrast tool',
-            executionTime > 50 ? 'Consider caching frequently converted colors for better performance' : 'Conversion completed within optimal time',
-          ],
+          tool: 'convert_color',
+          executionTime,
         }
       );
+
+      return createSuccessResponse('convert_color', result, executionTime, {
+        colorSpaceUsed: 'sRGB',
+        detectedInputFormat: parseResult.detectedFormat || 'unknown',
+        ...(colorMetadata
+          ? {
+              colorProperties: {
+                brightness: colorMetadata.brightness,
+                temperature: colorMetadata.temperature,
+                wcagAA: colorMetadata.accessibility.wcagAA,
+                wcagAAA: colorMetadata.accessibility.wcagAAA,
+              },
+            }
+          : {}),
+        accessibilityNotes: colorMetadata
+          ? [
+              `Brightness: ${colorMetadata.brightness}/255`,
+              `Color temperature: ${colorMetadata.temperature}`,
+              `WCAG AA compliant: ${colorMetadata.accessibility.wcagAA ? 'Yes' : 'No'}`,
+              `WCAG AAA compliant: ${colorMetadata.accessibility.wcagAAA ? 'Yes' : 'No'}`,
+            ]
+          : [],
+        recommendations: [
+          'For better color accuracy in professional applications, consider using LAB color space',
+          'Use higher precision (3-4 decimal places) for color matching applications',
+          'Test color accessibility with the check_contrast tool',
+          executionTime > 50
+            ? 'Consider caching frequently converted colors for better performance'
+            : 'Conversion completed within optimal time',
+        ],
+      });
     } catch (error) {
       const executionTime = Date.now() - startTime;
       logger.error('Color conversion failed', {
@@ -213,10 +224,14 @@ export const convertColorTool: ToolHandler = {
       let suggestions: string[] = [];
 
       if (error instanceof Error) {
-        if (error.message.includes('parse') || error.message.includes('Unrecognized color format')) {
+        if (
+          error.message.includes('parse') ||
+          error.message.includes('Unrecognized color format')
+        ) {
           errorMessage = 'Invalid color format provided';
           suggestions = [
-            'Supported formats: ' + ColorParser.getSupportedFormats().join(', '),
+            'Supported formats: ' +
+              ColorParser.getSupportedFormats().join(', '),
             'Check the color value spelling and format',
             'Use quotes around color values in JSON',
           ];
@@ -241,7 +256,10 @@ export const convertColorTool: ToolHandler = {
         error: {
           code: 'CONVERSION_ERROR',
           message: errorMessage,
-          details: process.env['NODE_ENV'] === 'development' ? (error as Error).message : undefined,
+          details:
+            process.env['NODE_ENV'] === 'development'
+              ? (error as Error).message
+              : undefined,
           suggestions,
         },
         metadata: {

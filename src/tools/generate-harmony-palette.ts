@@ -3,7 +3,11 @@
  */
 
 import { ToolHandler, ToolResponse, ErrorResponse } from '../types/index';
-import { PaletteGenerator, HarmonyType, HarmonyGenerationOptions } from '../color/palette-generator';
+import {
+  PaletteGenerator,
+  HarmonyType,
+  HarmonyGenerationOptions,
+} from '../color/palette-generator';
 import { UnifiedColor } from '../color/unified-color';
 import { logger } from '../utils/logger';
 
@@ -16,13 +20,15 @@ interface GenerateHarmonyPaletteParams {
 
 export const generateHarmonyPaletteTool: ToolHandler = {
   name: 'generate_harmony_palette',
-  description: 'Generate color palettes based on color theory harmony principles including complementary, triadic, analogous, and other harmony types',
+  description:
+    'Generate color palettes based on color theory harmony principles including complementary, triadic, analogous, and other harmony types',
   parameters: {
     type: 'object',
     properties: {
       base_color: {
         type: 'string',
-        description: 'Base color for harmony generation (hex, rgb, hsl, or named color)',
+        description:
+          'Base color for harmony generation (hex, rgb, hsl, or named color)',
       },
       harmony_type: {
         type: 'string',
@@ -33,7 +39,7 @@ export const generateHarmonyPaletteTool: ToolHandler = {
           'triadic',
           'tetradic',
           'split_complementary',
-          'double_complementary'
+          'double_complementary',
         ],
         description: 'Type of color harmony to generate',
       },
@@ -55,14 +61,17 @@ export const generateHarmonyPaletteTool: ToolHandler = {
 
   async handler(params: unknown): Promise<ToolResponse | ErrorResponse> {
     const startTime = performance.now();
-    
+
     try {
       // Validate and parse parameters
       const validatedParams = validateParams(params);
-      
-      logger.info(`Generating harmony palette: ${validatedParams.harmony_type} from ${validatedParams.base_color}`, {
-        tool: 'generate_harmony_palette',
-      });
+
+      logger.info(
+        `Generating harmony palette: ${validatedParams.harmony_type} from ${validatedParams.base_color}`,
+        {
+          tool: 'generate_harmony_palette',
+        }
+      );
 
       // Generate the harmony palette
       const options: HarmonyGenerationOptions = {
@@ -73,7 +82,7 @@ export const generateHarmonyPaletteTool: ToolHandler = {
       };
 
       const palette = PaletteGenerator.generateHarmonyPalette(options);
-      
+
       // Convert colors to response format
       const colorsData = palette.colors.map((color, index) => ({
         index,
@@ -91,30 +100,44 @@ export const generateHarmonyPaletteTool: ToolHandler = {
       // Check overall palette accessibility
       if (palette.metadata.accessibilityScore < 70) {
         accessibilityNotes.push('This palette may have accessibility concerns');
-        recommendations.push('Consider adjusting colors for better contrast ratios');
+        recommendations.push(
+          'Consider adjusting colors for better contrast ratios'
+        );
       }
 
       if (palette.metadata.diversity < 50) {
-        recommendations.push('Consider increasing variation for more diverse palette');
+        recommendations.push(
+          'Consider increasing variation for more diverse palette'
+        );
       }
 
       if (palette.metadata.harmonyScore < 80) {
-        recommendations.push('Some colors may not perfectly follow color theory principles');
+        recommendations.push(
+          'Some colors may not perfectly follow color theory principles'
+        );
       }
 
       // Add harmony-specific recommendations
       switch (validatedParams.harmony_type) {
         case 'complementary':
-          recommendations.push('Use the base and complement colors for high contrast elements');
+          recommendations.push(
+            'Use the base and complement colors for high contrast elements'
+          );
           break;
         case 'triadic':
-          recommendations.push('Triadic colors work well for vibrant, balanced designs');
+          recommendations.push(
+            'Triadic colors work well for vibrant, balanced designs'
+          );
           break;
         case 'analogous':
-          recommendations.push('Analogous colors create harmonious, calming effects');
+          recommendations.push(
+            'Analogous colors create harmonious, calming effects'
+          );
           break;
         case 'monochromatic':
-          recommendations.push('Monochromatic palettes are elegant but may need accent colors');
+          recommendations.push(
+            'Monochromatic palettes are elegant but may need accent colors'
+          );
           break;
       }
 
@@ -139,7 +162,9 @@ export const generateHarmonyPaletteTool: ToolHandler = {
           metadata: {
             ...palette.metadata,
             color_count: palette.colors.length,
-            harmony_description: getHarmonyDescription(validatedParams.harmony_type),
+            harmony_description: getHarmonyDescription(
+              validatedParams.harmony_type
+            ),
           },
           relationships: palette.metadata.relationships,
           scores: {
@@ -159,13 +184,15 @@ export const generateHarmonyPaletteTool: ToolHandler = {
         export_formats: exportFormats,
       };
 
-      logger.info(`Harmony palette generated successfully: ${palette.colors.length} colors`, {
-        tool: 'generate_harmony_palette',
-        executionTime,
-      });
+      logger.info(
+        `Harmony palette generated successfully: ${palette.colors.length} colors`,
+        {
+          tool: 'generate_harmony_palette',
+          executionTime,
+        }
+      );
 
       return response;
-
     } catch (error) {
       const endTime = performance.now();
       const executionTime = Math.round(endTime - startTime);
@@ -180,7 +207,10 @@ export const generateHarmonyPaletteTool: ToolHandler = {
         success: false,
         error: {
           code: 'INVALID_INPUT',
-          message: error instanceof Error ? error.message : 'Failed to generate harmony palette',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to generate harmony palette',
           suggestions: [
             'Ensure base_color is a valid color format (hex, rgb, hsl, or named color)',
             'Check that harmony_type is one of the supported types',
@@ -225,11 +255,13 @@ function validateParams(params: unknown): GenerateHarmonyPaletteParams {
     'triadic',
     'tetradic',
     'split_complementary',
-    'double_complementary'
+    'double_complementary',
   ];
 
   if (!validHarmonyTypes.includes(p['harmony_type'] as HarmonyType)) {
-    throw new Error(`Invalid harmony_type. Must be one of: ${validHarmonyTypes.join(', ')}`);
+    throw new Error(
+      `Invalid harmony_type. Must be one of: ${validHarmonyTypes.join(', ')}`
+    );
   }
 
   // Validate base color
@@ -250,7 +282,11 @@ function validateParams(params: unknown): GenerateHarmonyPaletteParams {
   }
 
   if (p['variation'] !== undefined) {
-    if (typeof p['variation'] !== 'number' || p['variation'] < 0 || p['variation'] > 100) {
+    if (
+      typeof p['variation'] !== 'number' ||
+      p['variation'] < 0 ||
+      p['variation'] > 100
+    ) {
       throw new Error('variation must be a number between 0 and 100');
     }
     result.variation = p['variation'];
@@ -263,9 +299,9 @@ function validateParams(params: unknown): GenerateHarmonyPaletteParams {
  * Generate CSS export format
  */
 function generateCSSExport(colors: UnifiedColor[]): string {
-  const cssVars = colors.map((color, index) => 
-    `  --color-${index + 1}: ${color.hex};`
-  ).join('\n');
+  const cssVars = colors
+    .map((color, index) => `  --color-${index + 1}: ${color.hex};`)
+    .join('\n');
 
   return `:root {\n${cssVars}\n}`;
 }
@@ -274,18 +310,18 @@ function generateCSSExport(colors: UnifiedColor[]): string {
  * Generate SCSS export format
  */
 function generateSCSSExport(colors: UnifiedColor[]): string {
-  return colors.map((color, index) => 
-    `$color-${index + 1}: ${color.hex};`
-  ).join('\n');
+  return colors
+    .map((color, index) => `$color-${index + 1}: ${color.hex};`)
+    .join('\n');
 }
 
 /**
  * Generate Tailwind CSS export format
  */
 function generateTailwindExport(colors: UnifiedColor[]): string {
-  const colorEntries = colors.map((color, index) => 
-    `    'palette-${index + 1}': '${color.hex}',`
-  ).join('\n');
+  const colorEntries = colors
+    .map((color, index) => `    'palette-${index + 1}': '${color.hex}',`)
+    .join('\n');
 
   return `module.exports = {\n  theme: {\n    extend: {\n      colors: {\n${colorEntries}\n      }\n    }\n  }\n}`;
 }
@@ -295,12 +331,17 @@ function generateTailwindExport(colors: UnifiedColor[]): string {
  */
 function getHarmonyDescription(harmonyType: HarmonyType): string {
   const descriptions: Record<HarmonyType, string> = {
-    monochromatic: 'Uses variations of a single hue with different saturation and lightness values',
+    monochromatic:
+      'Uses variations of a single hue with different saturation and lightness values',
     analogous: 'Uses colors that are adjacent to each other on the color wheel',
-    complementary: 'Uses colors that are opposite each other on the color wheel',
-    triadic: 'Uses three colors evenly spaced around the color wheel (120° apart)',
-    tetradic: 'Uses four colors evenly spaced around the color wheel (90° apart)',
-    split_complementary: 'Uses a base color and two colors adjacent to its complement',
+    complementary:
+      'Uses colors that are opposite each other on the color wheel',
+    triadic:
+      'Uses three colors evenly spaced around the color wheel (120° apart)',
+    tetradic:
+      'Uses four colors evenly spaced around the color wheel (90° apart)',
+    split_complementary:
+      'Uses a base color and two colors adjacent to its complement',
     double_complementary: 'Uses two pairs of complementary colors',
   };
 

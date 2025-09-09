@@ -18,26 +18,26 @@ export interface ParseResult {
 
 export class ColorParser {
   private static readonly HEX_PATTERNS = [
-    /^#([0-9A-Fa-f]{6})$/,           // #RRGGBB
-    /^#([0-9A-Fa-f]{3})$/,           // #RGB
-    /^#([0-9A-Fa-f]{8})$/,           // #RRGGBBAA
-    /^#([0-9A-Fa-f]{4})$/,           // #RGBA
-    /^([0-9A-Fa-f]{6})$/,            // RRGGBB (no #)
-    /^([0-9A-Fa-f]{3})$/,            // RGB (no #)
+    /^#([0-9A-Fa-f]{6})$/, // #RRGGBB
+    /^#([0-9A-Fa-f]{3})$/, // #RGB
+    /^#([0-9A-Fa-f]{8})$/, // #RRGGBBAA
+    /^#([0-9A-Fa-f]{4})$/, // #RGBA
+    /^([0-9A-Fa-f]{6})$/, // RRGGBB (no #)
+    /^([0-9A-Fa-f]{3})$/, // RGB (no #)
   ];
 
   private static readonly RGB_PATTERNS = [
     /^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i,
     /^rgba\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+)\s*\)$/i,
-    /^(\d+)\s*,\s*(\d+)\s*,\s*(\d+)$/,                    // 255,0,0
-    /^(\d+)\s+(\d+)\s+(\d+)$/,                            // 255 0 0
-    /^\[\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\]$/,         // [255,0,0]
+    /^(\d+)\s*,\s*(\d+)\s*,\s*(\d+)$/, // 255,0,0
+    /^(\d+)\s+(\d+)\s+(\d+)$/, // 255 0 0
+    /^\[\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\]$/, // [255,0,0]
   ];
 
   private static readonly HSL_PATTERNS = [
     /^hsl\s*\(\s*([\d.]+)\s*,\s*([\d.]+)%?\s*,\s*([\d.]+)%?\s*\)$/i,
     /^hsla\s*\(\s*([\d.]+)\s*,\s*([\d.]+)%?\s*,\s*([\d.]+)%?\s*,\s*([\d.]+)\s*\)$/i,
-    /^([\d.]+)\s*,\s*([\d.]+)%?\s*,\s*([\d.]+)%?$/,      // 0,100%,50%
+    /^([\d.]+)\s*,\s*([\d.]+)%?\s*,\s*([\d.]+)%?$/, // 0,100%,50%
   ];
 
   private static readonly HSV_PATTERNS = [
@@ -76,30 +76,146 @@ export class ColorParser {
 
   // CSS named colors (subset for validation)
   private static readonly NAMED_COLORS = new Set([
-    'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque',
-    'black', 'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood',
-    'cadetblue', 'chartreuse', 'chocolate', 'coral', 'cornflowerblue', 'cornsilk',
-    'crimson', 'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray',
-    'darkgreen', 'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange',
-    'darkorchid', 'darkred', 'darksalmon', 'darkseagreen', 'darkslateblue',
-    'darkslategray', 'darkturquoise', 'darkviolet', 'deeppink', 'deepskyblue',
-    'dimgray', 'dodgerblue', 'firebrick', 'floralwhite', 'forestgreen', 'fuchsia',
-    'gainsboro', 'ghostwhite', 'gold', 'goldenrod', 'gray', 'green', 'greenyellow',
-    'honeydew', 'hotpink', 'indianred', 'indigo', 'ivory', 'khaki', 'lavender',
-    'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue', 'lightcoral',
-    'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgreen', 'lightpink',
-    'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightsteelblue',
-    'lightyellow', 'lime', 'limegreen', 'linen', 'magenta', 'maroon', 'mediumaquamarine',
-    'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue',
-    'mediumspringgreen', 'mediumturquoise', 'mediumvioletred', 'midnightblue',
-    'mintcream', 'mistyrose', 'moccasin', 'navajowhite', 'navy', 'oldlace', 'olive',
-    'olivedrab', 'orange', 'orangered', 'orchid', 'palegoldenrod', 'palegreen',
-    'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink',
-    'plum', 'powderblue', 'purple', 'red', 'rosybrown', 'royalblue', 'saddlebrown',
-    'salmon', 'sandybrown', 'seagreen', 'seashell', 'sienna', 'silver', 'skyblue',
-    'slateblue', 'slategray', 'snow', 'springgreen', 'steelblue', 'tan', 'teal',
-    'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke',
-    'yellow', 'yellowgreen'
+    'aliceblue',
+    'antiquewhite',
+    'aqua',
+    'aquamarine',
+    'azure',
+    'beige',
+    'bisque',
+    'black',
+    'blanchedalmond',
+    'blue',
+    'blueviolet',
+    'brown',
+    'burlywood',
+    'cadetblue',
+    'chartreuse',
+    'chocolate',
+    'coral',
+    'cornflowerblue',
+    'cornsilk',
+    'crimson',
+    'cyan',
+    'darkblue',
+    'darkcyan',
+    'darkgoldenrod',
+    'darkgray',
+    'darkgreen',
+    'darkkhaki',
+    'darkmagenta',
+    'darkolivegreen',
+    'darkorange',
+    'darkorchid',
+    'darkred',
+    'darksalmon',
+    'darkseagreen',
+    'darkslateblue',
+    'darkslategray',
+    'darkturquoise',
+    'darkviolet',
+    'deeppink',
+    'deepskyblue',
+    'dimgray',
+    'dodgerblue',
+    'firebrick',
+    'floralwhite',
+    'forestgreen',
+    'fuchsia',
+    'gainsboro',
+    'ghostwhite',
+    'gold',
+    'goldenrod',
+    'gray',
+    'green',
+    'greenyellow',
+    'honeydew',
+    'hotpink',
+    'indianred',
+    'indigo',
+    'ivory',
+    'khaki',
+    'lavender',
+    'lavenderblush',
+    'lawngreen',
+    'lemonchiffon',
+    'lightblue',
+    'lightcoral',
+    'lightcyan',
+    'lightgoldenrodyellow',
+    'lightgray',
+    'lightgreen',
+    'lightpink',
+    'lightsalmon',
+    'lightseagreen',
+    'lightskyblue',
+    'lightslategray',
+    'lightsteelblue',
+    'lightyellow',
+    'lime',
+    'limegreen',
+    'linen',
+    'magenta',
+    'maroon',
+    'mediumaquamarine',
+    'mediumblue',
+    'mediumorchid',
+    'mediumpurple',
+    'mediumseagreen',
+    'mediumslateblue',
+    'mediumspringgreen',
+    'mediumturquoise',
+    'mediumvioletred',
+    'midnightblue',
+    'mintcream',
+    'mistyrose',
+    'moccasin',
+    'navajowhite',
+    'navy',
+    'oldlace',
+    'olive',
+    'olivedrab',
+    'orange',
+    'orangered',
+    'orchid',
+    'palegoldenrod',
+    'palegreen',
+    'paleturquoise',
+    'palevioletred',
+    'papayawhip',
+    'peachpuff',
+    'peru',
+    'pink',
+    'plum',
+    'powderblue',
+    'purple',
+    'red',
+    'rosybrown',
+    'royalblue',
+    'saddlebrown',
+    'salmon',
+    'sandybrown',
+    'seagreen',
+    'seashell',
+    'sienna',
+    'silver',
+    'skyblue',
+    'slateblue',
+    'slategray',
+    'snow',
+    'springgreen',
+    'steelblue',
+    'tan',
+    'teal',
+    'thistle',
+    'tomato',
+    'turquoise',
+    'violet',
+    'wheat',
+    'white',
+    'whitesmoke',
+    'yellow',
+    'yellowgreen',
   ]);
 
   static parse(input: string): ParseResult {
@@ -265,7 +381,16 @@ export class ColorParser {
           const y = parseFloat(match[3]!);
           const k = parseFloat(match[4]!);
 
-          if (c < 0 || c > 100 || m < 0 || m > 100 || y < 0 || y > 100 || k < 0 || k > 100) {
+          if (
+            c < 0 ||
+            c > 100 ||
+            m < 0 ||
+            m > 100 ||
+            y < 0 ||
+            y > 100 ||
+            k < 0 ||
+            k > 100
+          ) {
             continue;
           }
 
@@ -305,7 +430,7 @@ export class ColorParser {
           const chroma = require('chroma-js');
           const rgb = chroma.lab(l, a, b).rgb();
           const color = UnifiedColor.fromRgb(rgb[0], rgb[1], rgb[2]);
-          
+
           return {
             success: true,
             color,
@@ -330,7 +455,7 @@ export class ColorParser {
 
           // Convert XYZ to RGB using standard transformation
           let r = x * 3.2404542 + y * -1.5371385 + z * -0.4985314;
-          let g = x * -0.9692660 + y * 1.8760108 + z * 0.0415560;
+          let g = x * -0.969266 + y * 1.8760108 + z * 0.041556;
           let b = x * 0.0556434 + y * -0.2040259 + z * 1.0572252;
 
           // Apply gamma correction
@@ -374,7 +499,7 @@ export class ColorParser {
           const chroma = require('chroma-js');
           const rgb = chroma.lch(l, c, h).rgb();
           const color = UnifiedColor.fromRgb(rgb[0], rgb[1], rgb[2]);
-          
+
           return {
             success: true,
             color,
@@ -406,7 +531,7 @@ export class ColorParser {
             const chroma = require('chroma-js');
             const rgb = chroma.oklab(l, a, b).rgb();
             const color = UnifiedColor.fromRgb(rgb[0], rgb[1], rgb[2]);
-            
+
             return {
               success: true,
               color,
@@ -420,7 +545,7 @@ export class ColorParser {
             const chroma = require('chroma-js');
             const rgb = chroma.lab(labL, labA, labB).rgb();
             const color = UnifiedColor.fromRgb(rgb[0], rgb[1], rgb[2]);
-            
+
             return {
               success: true,
               color,
@@ -453,7 +578,7 @@ export class ColorParser {
             const chroma = require('chroma-js');
             const rgb = chroma.oklch(l, c, h).rgb();
             const color = UnifiedColor.fromRgb(rgb[0], rgb[1], rgb[2]);
-            
+
             return {
               success: true,
               color,
@@ -467,7 +592,7 @@ export class ColorParser {
             const chroma = require('chroma-js');
             const rgb = chroma.lch(lchL, lchC, lchH).rgb();
             const color = UnifiedColor.fromRgb(rgb[0], rgb[1], rgb[2]);
-            
+
             return {
               success: true,
               color,

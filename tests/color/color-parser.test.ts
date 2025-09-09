@@ -33,14 +33,7 @@ describe('ColorParser', () => {
     });
 
     test('should reject invalid HEX formats', () => {
-      const invalidCases = [
-        '#GG0000',
-        '#FF00',
-        '#FF00000',
-        'GG0000',
-        '#',
-        '',
-      ];
+      const invalidCases = ['#GG0000', '#FF00', '#FF00000', 'GG0000', '#', ''];
 
       invalidCases.forEach(input => {
         const result = ColorParser.parse(input);
@@ -78,11 +71,7 @@ describe('ColorParser', () => {
     });
 
     test('should parse comma-separated RGB values', () => {
-      const testCases = [
-        '255, 0, 0',
-        '255,0,0',
-        ' 255 , 0 , 0 ',
-      ];
+      const testCases = ['255, 0, 0', '255,0,0', ' 255 , 0 , 0 '];
 
       testCases.forEach(input => {
         const result = ColorParser.parse(input);
@@ -418,16 +407,16 @@ describe('ColorParser', () => {
   describe('Performance and Accuracy', () => {
     test('should parse colors quickly', () => {
       const startTime = Date.now();
-      
+
       for (let i = 0; i < 1000; i++) {
         ColorParser.parse('#FF0000');
         ColorParser.parse('rgb(255, 0, 0)');
         ColorParser.parse('hsl(0, 100%, 50%)');
       }
-      
+
       const endTime = Date.now();
       const totalTime = endTime - startTime;
-      
+
       // Should parse 3000 colors in less than 1 second
       expect(totalTime).toBeLessThan(1000);
     });
@@ -435,7 +424,7 @@ describe('ColorParser', () => {
     test('should maintain color accuracy across formats', () => {
       const originalColor = '#FF8040';
       const result = ColorParser.parse(originalColor);
-      
+
       expect(result.success).toBe(true);
       expect(result.color?.hex).toBe(originalColor.toLowerCase());
     });

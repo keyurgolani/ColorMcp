@@ -1,0 +1,398 @@
+/**
+ * MCP tool for creating HTML palette visualizations
+ */
+
+import { ToolHandler, ToolResponse, ErrorResponse } from '../types/index';
+import {
+  HTMLGenerator,
+  HTMLGeneratorOptions,
+  PaletteVisualizationData,
+} from '../visualization/html-generator';
+import { UnifiedColor } from '../color/unified-color';
+import { validateColorInput } from '../validation/schemas';
+import Joi from 'joi';
+
+// Parameter validation schema
+const createPaletteHtmlSchema = Joi.object({
+  palette: Joi.array()
+    .items(Joi.string().required())
+    .min(1)
+    .max(50)
+    .required()
+    .description('Array of colors in any supported format'),
+
+  layout: Joi.string()
+    .valid('horizontal', 'vertical', 'grid', 'circular', 'wave')
+    .default('horizontal')
+    .description('Layout style for the palette'),
+
+  style: Joi.string()
+    .valid('swatches', 'gradient', 'cards', 'minimal', 'detailed')
+    .default('swatches')
+    .description('Visual style of the palette'),
+
+  size: Joi.string()
+    .valid('small', 'medium', 'large', 'custom')
+    .default('medium')
+    .description('Size of color swatches'),
+
+  custom_dimensions: Joi.array()
+    .items(Joi.number().integer().min(50).max(2000))
+    .length(2)
+    .when('size', {
+      is: 'custom',
+      then: Joi.required(),
+      otherwise: Joi.optional(),
+    })
+    .description('Custom dimensions [width, height] when size is custom'),
+
+  show_values: Joi.boolean()
+    .default(true)
+    .description('Show color values on swatches'),
+
+  show_names: Joi.boolean()
+    .default(false)
+    .description('Show color names if available'),
+
+  interactive: Joi.boolean()
+    .default(true)
+    .description('Enable interactive features'),
+
+  export_formats: Joi.array()
+    .items(Joi.string().valid('hex', 'rgb', 'hsl', 'css', 'json'))
+    .default(['hex', 'rgb', 'hsl'])
+    .description('Available export formats'),
+
+  accessibility_info: Joi.boolean()
+    .default(false)
+    .description('Show accessibility information'),
+
+  theme: Joi.string()
+    .valid('light', 'dark', 'auto')
+    .default('light')
+    .description('Color theme for the visualization'),
+});
+
+interface CreatePaletteHtmlParams {
+  palette: string[];
+  layout?: 'horizontal' | 'vertical' | 'grid' | 'circular' | 'wave';
+  style?: 'swatches' | 'gradient' | 'cards' | 'minimal' | 'detailed';
+  size?: 'small' | 'medium' | 'large' | 'custom';
+  custom_dimensions?: [number, number];
+  show_values?: boolean;
+  show_names?: boolean;
+  interactive?: boolean;
+  export_formats?: string[];
+  accessibility_info?: boolean;
+  theme?: 'light' | 'dark' | 'auto';
+}
+
+async function createPaletteHtml(
+  params: CreatePaletteHtmlParams
+): Promise<ToolResponse | ErrorResponse> {
+  const startTime = Date.now();
+
+  try {
+    // Validate parameters
+    const { error, value } = createPaletteHtmlSchema.validate(params);
+    if (error) {
+      return {
+        success: false,
+        error: {
+          code: 'INVALID_PARAMETERS',
+          message: 'Invalid parameters provided',
+          details: error.details,
+          suggestions: [
+            'Check that palette contains valid color strings',
+            'Ensure layout is one of: horizontal, vertical, grid, circular, wave',
+            'Verify custom_dimensions are provided when size is custom',
+          ],
+        },
+        metadata: {
+          execution_time: Date.now() - startTime,
+          tool: 'create_palette_html',
+          timestamp: new Date().toISOString(),
+        },
+      };
+    }
+
+    const validatedParams = value as CreatePaletteHtmlParams;
+
+    // Parse and validate colors
+    const colors: Array<{
+      hex: string;
+      rgb: string;
+      hsl: string;
+      name?: string;
+      accessibility?: {
+        contrastRatio: number;
+        wcagAA: boolean;
+        wcagAAA: boolean;
+      };
+    }> = [];
+
+    const accessibilityNotes: string[] = [];
+    const recommendations: string[] = [];
+
+    for (let i = 0; i < validatedParams.palette.length; i++) {
+      const colorInput = validatedParams.palette[i];
+
+      if (!colorInput) {
+        return {
+          success: false,
+          error: {
+            code: 'INVALID_COLOR_FORMAT',
+            message: `Color at index ${i} is undefined or null`,
+            details: { index: i, color: colorInput },
+            suggestions: [
+              'Ensure all palette entries are valid color strings',
+              'Check for undefined or null values in the palette array',
+            ],
+          },
+          metadata: {
+            execution_time: Date.now() - startTime,
+            tool: 'create_palette_html',
+            timestamp: new Date().toISOString(),
+          },
+        };
+      }
+
+      try {
+        // Validate color format
+        const colorValidation = validateColorInput(colorInput);
+        if (!colorValidation.isValid) {
+          return {
+            success: false,
+            error: {
+              code: 'INVALID_COLOR_FORMAT',
+              message: `Invalid color format at index ${i}: ${colorInput}`,
+              details: {
+                index: i,
+                color: colorInput,
+                reason: colorValidation.error,
+              },
+              suggestions: [
+                'Use hex format like #FF0000',
+                'Use RGB format like rgb(255, 0, 0)',
+                'Use HSL format like hsl(0, 100%, 50%)',
+                'Check the color format documentation',
+              ],
+            },
+            metadata: {
+              execution_time: Date.now() - startTime,
+              tool: 'create_palette_html',
+              timestamp: new Date().toISOString(),
+            },
+          };
+        }
+
+        const unifiedColor = new UnifiedColor(colorInput);
+
+        // Calculate accessibility information if requested
+        let accessibility;
+        if (validatedParams.accessibility_info) {
+          // Calculate contrast against white and black backgrounds
+          const whiteContrast = unifiedColor.getContrastRatio('#ffffff');
+          const blackContrast = unifiedColor.getContrastRatio('#000000');
+          const bestContrast = Math.max(whiteContrast, blackContrast);
+
+          accessibility = {
+            contrastRatio: bestContrast,
+            wcagAA: bestContrast >= 4.5,
+            wcagAAA: bestContrast >= 7.0,
+          };
+
+          // Add accessibility notes
+          if (!accessibility.wcagAA) {
+            accessibilityNotes.push(
+              `Color ${unifiedColor.hex} may not meet WCAG AA contrast requirements`
+            );
+          }
+        }
+
+        const colorName = unifiedColor.getName();
+        colors.push({
+          hex: unifiedColor.hex,
+          rgb: unifiedColor.toFormat('rgb'),
+          hsl: unifiedColor.toFormat('hsl'),
+          ...(colorName && { name: colorName }),
+          ...(accessibility && { accessibility }),
+        });
+      } catch (colorError) {
+        return {
+          success: false,
+          error: {
+            code: 'COLOR_PROCESSING_ERROR',
+            message: `Failed to process color at index ${i}: ${colorInput}`,
+            details: { index: i, color: colorInput, error: colorError },
+            suggestions: [
+              'Verify the color format is supported',
+              'Check for typos in color values',
+              'Try a different color format',
+            ],
+          },
+          metadata: {
+            execution_time: Date.now() - startTime,
+            tool: 'create_palette_html',
+            timestamp: new Date().toISOString(),
+          },
+        };
+      }
+    }
+
+    // Generate recommendations
+    if (colors.length > 10) {
+      recommendations.push(
+        'Consider using fewer colors for better visual clarity'
+      );
+    }
+
+    if (validatedParams.layout === 'circular' && colors.length > 8) {
+      recommendations.push('Circular layout works best with 8 or fewer colors');
+    }
+
+    if (validatedParams.accessibility_info) {
+      const lowContrastColors = colors.filter(
+        c => c.accessibility && !c.accessibility.wcagAA
+      ).length;
+      if (lowContrastColors > 0) {
+        recommendations.push(
+          `${lowContrastColors} colors may need contrast adjustment for accessibility`
+        );
+      }
+    }
+
+    // Prepare visualization data
+    const options: HTMLGeneratorOptions = {
+      ...(validatedParams.layout && { layout: validatedParams.layout }),
+      ...(validatedParams.style && { style: validatedParams.style }),
+      ...(validatedParams.size && { size: validatedParams.size }),
+      ...(validatedParams.custom_dimensions && {
+        customDimensions: validatedParams.custom_dimensions,
+      }),
+      ...(validatedParams.show_values !== undefined && {
+        showValues: validatedParams.show_values,
+      }),
+      ...(validatedParams.show_names !== undefined && {
+        showNames: validatedParams.show_names,
+      }),
+      ...(validatedParams.interactive !== undefined && {
+        interactive: validatedParams.interactive,
+      }),
+      ...(validatedParams.export_formats && {
+        exportFormats: validatedParams.export_formats,
+      }),
+      ...(validatedParams.accessibility_info !== undefined && {
+        accessibilityInfo: validatedParams.accessibility_info,
+      }),
+      ...(validatedParams.theme && { theme: validatedParams.theme }),
+    };
+
+    const visualizationData: PaletteVisualizationData = {
+      colors,
+      options,
+      metadata: {
+        title: 'Color Palette Visualization',
+        description: `Interactive color palette with ${colors.length} colors`,
+        timestamp: new Date().toLocaleString(),
+        colorCount: colors.length,
+      },
+    };
+
+    // Generate HTML
+    const htmlGenerator = new HTMLGenerator();
+    const html = htmlGenerator.generatePaletteHTML(visualizationData);
+
+    // Prepare export formats
+    const exportFormats: Record<string, any> = {};
+
+    if (validatedParams.export_formats?.includes('css')) {
+      exportFormats['css'] = generateCSSExport(colors);
+    }
+
+    if (validatedParams.export_formats?.includes('json')) {
+      exportFormats['json'] = {
+        palette: colors.map(c => ({
+          hex: c.hex,
+          rgb: c.rgb,
+          hsl: c.hsl,
+          name: c.name,
+        })),
+        metadata: visualizationData.metadata,
+      };
+    }
+
+    const executionTime = Date.now() - startTime;
+
+    return {
+      success: true,
+      data: {
+        colors: colors.map(c => ({
+          hex: c.hex,
+          rgb: c.rgb,
+          hsl: c.hsl,
+          name: c.name,
+        })),
+        layout: validatedParams.layout,
+        color_count: colors.length,
+        accessibility_compliant: validatedParams.accessibility_info
+          ? colors.every(c => c.accessibility?.wcagAA)
+          : undefined,
+      },
+      metadata: {
+        execution_time: executionTime,
+        tool: 'create_palette_html',
+        timestamp: new Date().toISOString(),
+        color_space_used: 'sRGB',
+        accessibility_notes: accessibilityNotes,
+        recommendations,
+        colorCount: colors.length,
+      },
+      visualizations: {
+        html,
+      },
+      export_formats: exportFormats,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message:
+          'An unexpected error occurred while generating the HTML visualization',
+        details: error,
+        suggestions: [
+          'Try with a smaller palette',
+          'Verify all colors are in valid formats',
+          'Check if the layout and style options are supported',
+        ],
+      },
+      metadata: {
+        execution_time: Date.now() - startTime,
+        tool: 'create_palette_html',
+        timestamp: new Date().toISOString(),
+      },
+    };
+  }
+}
+
+function generateCSSExport(
+  colors: Array<{ hex: string; rgb: string; hsl: string }>
+): string {
+  let css = ':root {\n';
+  colors.forEach((color, index) => {
+    css += `  --color-${index + 1}: ${color.hex};\n`;
+    css += `  --color-${index + 1}-rgb: ${color.rgb.match(/\d+/g)?.join(', ')};\n`;
+  });
+  css += '}';
+  return css;
+}
+
+export const createPaletteHtmlTool: ToolHandler = {
+  name: 'create_palette_html',
+  description:
+    'Generate interactive HTML visualizations of color palettes with accessibility features and multiple layout options',
+  parameters: createPaletteHtmlSchema.describe(),
+  handler: async (params: unknown) =>
+    createPaletteHtml(params as CreatePaletteHtmlParams),
+};

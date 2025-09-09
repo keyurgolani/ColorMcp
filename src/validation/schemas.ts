@@ -5,15 +5,11 @@
 import Joi from 'joi';
 
 // Color format validation - flexible to support multiple input variations
-export const colorSchema = Joi.string()
-  .trim()
-  .min(1)
-  .required()
-  .messages({
-    'string.empty': 'Color value cannot be empty',
-    'any.required': 'Color value is required',
-    'string.base': 'Color value must be a string',
-  });
+export const colorSchema = Joi.string().trim().min(1).required().messages({
+  'string.empty': 'Color value cannot be empty',
+  'any.required': 'Color value is required',
+  'string.base': 'Color value must be a string',
+});
 
 // Output format validation
 export const outputFormatSchema = Joi.string()
@@ -63,7 +59,8 @@ export const precisionSchema = Joi.number()
 export const variableNameSchema = Joi.string()
   .pattern(/^[a-zA-Z][a-zA-Z0-9-_]*$/)
   .messages({
-    'string.pattern.base': 'Variable name must start with a letter and contain only letters, numbers, hyphens, and underscores',
+    'string.pattern.base':
+      'Variable name must start with a letter and contain only letters, numbers, hyphens, and underscores',
   });
 
 // Tool parameter schemas
@@ -163,18 +160,37 @@ export function validateColorInput(color: string): {
   // Basic format validation - more detailed validation happens in UnifiedColor
   const hexPattern = /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$/;
   const rgbPattern = /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+)?\s*\)$/;
-  const hslPattern = /^hsla?\(\s*\d+\s*,\s*\d+%\s*,\s*\d+%\s*(,\s*[\d.]+)?\s*\)$/;
-  const namedColors = ['red', 'green', 'blue', 'white', 'black', 'yellow', 'cyan', 'magenta', 'orange', 'purple', 'pink', 'brown', 'gray', 'grey'];
+  const hslPattern =
+    /^hsla?\(\s*\d+\s*,\s*\d+%\s*,\s*\d+%\s*(,\s*[\d.]+)?\s*\)$/;
+  const namedColors = [
+    'red',
+    'green',
+    'blue',
+    'white',
+    'black',
+    'yellow',
+    'cyan',
+    'magenta',
+    'orange',
+    'purple',
+    'pink',
+    'brown',
+    'gray',
+    'grey',
+  ];
 
-  if (hexPattern.test(trimmedColor) || 
-      rgbPattern.test(trimmedColor) || 
-      hslPattern.test(trimmedColor) ||
-      namedColors.includes(trimmedColor.toLowerCase())) {
+  if (
+    hexPattern.test(trimmedColor) ||
+    rgbPattern.test(trimmedColor) ||
+    hslPattern.test(trimmedColor) ||
+    namedColors.includes(trimmedColor.toLowerCase())
+  ) {
     return { isValid: true };
   }
 
   return {
     isValid: false,
-    error: 'Invalid color format. Supported formats: hex (#FF0000), rgb(255,0,0), hsl(0,100%,50%), or named colors',
+    error:
+      'Invalid color format. Supported formats: hex (#FF0000), rgb(255,0,0), hsl(0,100%,50%), or named colors',
   };
 }

@@ -79,11 +79,27 @@ export interface HWB {
   b: number;
 }
 
-export type SupportedFormat = 
-  | 'hex' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva' | 'hwb'
-  | 'cmyk' | 'lab' | 'xyz' | 'lch' | 'oklab' | 'oklch'
-  | 'css-var' | 'scss-var' | 'tailwind'
-  | 'swift' | 'android' | 'flutter'
+export type SupportedFormat =
+  | 'hex'
+  | 'rgb'
+  | 'rgba'
+  | 'hsl'
+  | 'hsla'
+  | 'hsv'
+  | 'hsva'
+  | 'hwb'
+  | 'cmyk'
+  | 'lab'
+  | 'xyz'
+  | 'lch'
+  | 'oklab'
+  | 'oklch'
+  | 'css-var'
+  | 'scss-var'
+  | 'tailwind'
+  | 'swift'
+  | 'android'
+  | 'flutter'
   | 'named';
 
 export class UnifiedColor {
@@ -126,17 +142,21 @@ export class UnifiedColor {
 
       this.generateMetadata();
     } catch (error) {
-      throw new Error(`Failed to parse color: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to parse color: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
   private generateMetadata(): void {
     const rgb = this._colord.toRgb();
     const hsl = this._colord.toHsl();
-    
+
     // Calculate perceived brightness using standard formula
-    const brightness = Math.round(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
-    
+    const brightness = Math.round(
+      0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b
+    );
+
     // Determine color temperature based on hue
     let temperature: 'warm' | 'cool' | 'neutral';
     if ((hsl.h >= 0 && hsl.h <= 90) || (hsl.h >= 270 && hsl.h <= 360)) {
@@ -151,7 +171,7 @@ export class UnifiedColor {
     const luminance = this.calculateLuminance(rgb);
     const whiteLuminance = 1.0; // White has luminance of 1
     const blackLuminance = 0.0; // Black has luminance of 0
-    
+
     const contrastWhite = (whiteLuminance + 0.05) / (luminance + 0.05);
     const contrastBlack = (luminance + 0.05) / (blackLuminance + 0.05);
     const contrastRatio = Math.max(contrastWhite, contrastBlack);
@@ -174,9 +194,12 @@ export class UnifiedColor {
     const gsRGB = rgb.g / 255;
     const bsRGB = rgb.b / 255;
 
-    const r = rsRGB <= 0.03928 ? rsRGB / 12.92 : Math.pow((rsRGB + 0.055) / 1.055, 2.4);
-    const g = gsRGB <= 0.03928 ? gsRGB / 12.92 : Math.pow((gsRGB + 0.055) / 1.055, 2.4);
-    const b = bsRGB <= 0.03928 ? bsRGB / 12.92 : Math.pow((bsRGB + 0.055) / 1.055, 2.4);
+    const r =
+      rsRGB <= 0.03928 ? rsRGB / 12.92 : Math.pow((rsRGB + 0.055) / 1.055, 2.4);
+    const g =
+      gsRGB <= 0.03928 ? gsRGB / 12.92 : Math.pow((gsRGB + 0.055) / 1.055, 2.4);
+    const b =
+      bsRGB <= 0.03928 ? bsRGB / 12.92 : Math.pow((bsRGB + 0.055) / 1.055, 2.4);
 
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
   }
@@ -185,7 +208,8 @@ export class UnifiedColor {
     // Basic check for color blind safety
     // A color is generally safer if it has good contrast and isn't purely red/green
     const hsl = this._colord.toHsl();
-    const isProblematicHue = (hsl.h >= 0 && hsl.h <= 60) || (hsl.h >= 120 && hsl.h <= 180);
+    const isProblematicHue =
+      (hsl.h >= 0 && hsl.h <= 60) || (hsl.h >= 120 && hsl.h <= 180);
     return !isProblematicHue || hsl.s < 50 || hsl.l < 30 || hsl.l > 70;
   }
 
@@ -267,113 +291,127 @@ export class UnifiedColor {
     switch (format) {
       case 'hex':
         return this.hex;
-      
+
       case 'rgb':
         const rgb = this.rgb;
         return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
-      
+
       case 'rgba':
         const rgba = this.rgb;
         const alpha = rgba.a !== undefined ? rgba.a : 1;
         return `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${alpha.toFixed(precision)})`;
-      
+
       case 'hsl':
         const hsl = this.hsl;
-        return precision === 0 
+        return precision === 0
           ? `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%)`
           : `hsl(${hsl.h.toFixed(precision)}, ${hsl.s.toFixed(precision)}%, ${hsl.l.toFixed(precision)}%)`;
-      
+
       case 'hsla':
         const hsla = this.hsl;
         const alphaHsl = hsla.a !== undefined ? hsla.a : 1;
         return precision === 0
           ? `hsla(${Math.round(hsla.h)}, ${Math.round(hsla.s)}%, ${Math.round(hsla.l)}%, ${alphaHsl.toFixed(1)})`
           : `hsla(${hsla.h.toFixed(precision)}, ${hsla.s.toFixed(precision)}%, ${hsla.l.toFixed(precision)}%, ${alphaHsl.toFixed(precision)})`;
-      
+
       case 'hsv':
         const hsv = this.hsv;
         return precision === 0
           ? `hsv(${Math.round(hsv.h)}, ${Math.round(hsv.s)}%, ${Math.round(hsv.v)}%)`
           : `hsv(${hsv.h.toFixed(precision)}, ${hsv.s.toFixed(precision)}%, ${hsv.v.toFixed(precision)}%)`;
-      
+
       case 'hsva':
         const hsva = this.hsv;
         const alphaHsv = hsva.a !== undefined ? hsva.a : 1;
         return precision === 0
           ? `hsva(${Math.round(hsva.h)}, ${Math.round(hsva.s)}%, ${Math.round(hsva.v)}%, ${alphaHsv.toFixed(1)})`
           : `hsva(${hsva.h.toFixed(precision)}, ${hsva.s.toFixed(precision)}%, ${hsva.v.toFixed(precision)}%, ${alphaHsv.toFixed(precision)})`;
-      
+
       case 'hwb':
         const hwb = this.hwb;
         return precision === 0
           ? `hwb(${Math.round(hwb.h)}, ${Math.round(hwb.w)}%, ${Math.round(hwb.b)}%)`
           : `hwb(${hwb.h.toFixed(precision)}, ${hwb.w.toFixed(precision)}%, ${hwb.b.toFixed(precision)}%)`;
-      
+
       case 'cmyk':
         const cmyk = this.cmyk;
         return `cmyk(${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%)`;
-      
+
       case 'lab':
         const lab = this.lab;
         return precision === 0
           ? `lab(${Math.round(lab.l)}, ${Math.round(lab.a)}, ${Math.round(lab.b)})`
           : `lab(${lab.l.toFixed(precision)}, ${lab.a.toFixed(precision)}, ${lab.b.toFixed(precision)})`;
-      
+
       case 'xyz':
         const xyz = this.xyz;
         return precision === 0
           ? `xyz(${Math.round(xyz.x)}, ${Math.round(xyz.y)}, ${Math.round(xyz.z)})`
           : `xyz(${xyz.x.toFixed(precision)}, ${xyz.y.toFixed(precision)}, ${xyz.z.toFixed(precision)})`;
-      
+
       case 'lch':
         const lch = this.lch;
         return precision === 0
           ? `lch(${Math.round(lch.l)}, ${Math.round(lch.c)}, ${Math.round(lch.h)})`
           : `lch(${lch.l.toFixed(precision)}, ${lch.c.toFixed(precision)}, ${lch.h.toFixed(precision)})`;
-      
+
       case 'oklab':
         const oklab = this.oklab;
         return precision === 0
           ? `oklab(${Math.round(oklab.l)}, ${Math.round(oklab.a)}, ${Math.round(oklab.b)})`
           : `oklab(${oklab.l.toFixed(precision)}, ${oklab.a.toFixed(precision)}, ${oklab.b.toFixed(precision)})`;
-      
+
       case 'oklch':
         const oklch = this.oklch;
         return precision === 0
           ? `oklch(${Math.round(oklch.l)}, ${Math.round(oklch.c)}, ${Math.round(oklch.h)})`
           : `oklch(${oklch.l.toFixed(precision)}, ${oklch.c.toFixed(precision)}, ${oklch.h.toFixed(precision)})`;
-      
+
       case 'named':
         // Return the closest named color (simplified implementation)
         return this.getClosestNamedColor();
-      
+
       case 'css-var':
         return `--color: ${this.hex};`;
-      
+
       case 'scss-var':
         return `$color: ${this.hex};`;
-      
+
       case 'tailwind':
         // Generate a more sophisticated Tailwind class name
         return this.generateTailwindClass();
-      
+
       case 'swift':
         const rgbSwift = this.rgb;
         const alphaSwift = rgbSwift.a !== undefined ? rgbSwift.a : 1;
         return `UIColor(red: ${(rgbSwift.r / 255).toFixed(precision)}, green: ${(rgbSwift.g / 255).toFixed(precision)}, blue: ${(rgbSwift.b / 255).toFixed(precision)}, alpha: ${alphaSwift.toFixed(precision)})`;
-      
+
       case 'android':
-        const alphaAndroid = this.rgb.a !== undefined ? Math.round(this.rgb.a * 255).toString(16).padStart(2, '0').toUpperCase() : 'FF';
+        const alphaAndroid =
+          this.rgb.a !== undefined
+            ? Math.round(this.rgb.a * 255)
+                .toString(16)
+                .padStart(2, '0')
+                .toUpperCase()
+            : 'FF';
         const rgbAndroid = this.rgb;
-        const hexAndroid = `${rgbAndroid.r.toString(16).padStart(2, '0')}${rgbAndroid.g.toString(16).padStart(2, '0')}${rgbAndroid.b.toString(16).padStart(2, '0')}`.toUpperCase();
+        const hexAndroid =
+          `${rgbAndroid.r.toString(16).padStart(2, '0')}${rgbAndroid.g.toString(16).padStart(2, '0')}${rgbAndroid.b.toString(16).padStart(2, '0')}`.toUpperCase();
         return `Color.parseColor("#${alphaAndroid}${hexAndroid}")`;
-      
+
       case 'flutter':
-        const alphaFlutter = this.rgb.a !== undefined ? Math.round(this.rgb.a * 255).toString(16).padStart(2, '0').toUpperCase() : 'FF';
+        const alphaFlutter =
+          this.rgb.a !== undefined
+            ? Math.round(this.rgb.a * 255)
+                .toString(16)
+                .padStart(2, '0')
+                .toUpperCase()
+            : 'FF';
         const rgbFlutter = this.rgb;
-        const hexFlutter = `${rgbFlutter.r.toString(16).padStart(2, '0')}${rgbFlutter.g.toString(16).padStart(2, '0')}${rgbFlutter.b.toString(16).padStart(2, '0')}`.toUpperCase();
+        const hexFlutter =
+          `${rgbFlutter.r.toString(16).padStart(2, '0')}${rgbFlutter.g.toString(16).padStart(2, '0')}${rgbFlutter.b.toString(16).padStart(2, '0')}`.toUpperCase();
         return `Color(0x${alphaFlutter}${hexFlutter})`;
-      
+
       default:
         throw new Error(`Unsupported output format: ${format}`);
     }
@@ -425,11 +463,11 @@ export class UnifiedColor {
     for (const [hex, name] of Object.entries(namedColors)) {
       const namedColor = new UnifiedColor(hex);
       const namedRgb = namedColor.rgb;
-      
+
       const distance = Math.sqrt(
         Math.pow(currentRgb.r - namedRgb.r, 2) +
-        Math.pow(currentRgb.g - namedRgb.g, 2) +
-        Math.pow(currentRgb.b - namedRgb.b, 2)
+          Math.pow(currentRgb.g - namedRgb.g, 2) +
+          Math.pow(currentRgb.b - namedRgb.b, 2)
       );
 
       if (distance < minDistance) {
@@ -443,7 +481,7 @@ export class UnifiedColor {
 
   private generateTailwindClass(): string {
     const hsl = this.hsl;
-    
+
     // Determine base color family based on hue
     let colorFamily = 'gray';
     if (hsl.s < 10) {
@@ -539,6 +577,34 @@ export class UnifiedColor {
   static fromLch(l: number, c: number, h: number): UnifiedColor {
     const lchObj: LCH = { l, c, h };
     return new UnifiedColor(lchObj);
+  }
+
+  // Additional utility methods
+  getName(): string | undefined {
+    // Try to get the closest named color
+    try {
+      return this.getClosestNamedColor();
+    } catch {
+      return undefined;
+    }
+  }
+
+  getContrastRatio(otherColor: string | UnifiedColor): number {
+    try {
+      const other =
+        typeof otherColor === 'string'
+          ? new UnifiedColor(otherColor)
+          : otherColor;
+      const thisLuminance = this.calculateLuminance(this.rgb);
+      const otherLuminance = other.calculateLuminance(other.rgb);
+
+      const lighter = Math.max(thisLuminance, otherLuminance);
+      const darker = Math.min(thisLuminance, otherLuminance);
+
+      return (lighter + 0.05) / (darker + 0.05);
+    } catch {
+      return 1; // Return 1 if calculation fails
+    }
   }
 
   // Validation method

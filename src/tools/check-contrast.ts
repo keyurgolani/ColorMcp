@@ -30,26 +30,30 @@ export interface CheckContrastResponse {
     passes: boolean;
   };
   recommendations: string[];
-  alternative_combinations?: {
-    foreground_adjustments: Array<{
-      color: string;
-      contrast_ratio: number;
-      apca_score?: number;
-      passes: boolean;
-    }>;
-    background_adjustments: Array<{
-      color: string;
-      contrast_ratio: number;
-      apca_score?: number;
-      passes: boolean;
-    }>;
-  } | undefined;
+  alternative_combinations?:
+    | {
+        foreground_adjustments: Array<{
+          color: string;
+          contrast_ratio: number;
+          apca_score?: number;
+          passes: boolean;
+        }>;
+        background_adjustments: Array<{
+          color: string;
+          contrast_ratio: number;
+          apca_score?: number;
+          passes: boolean;
+        }>;
+      }
+    | undefined;
 }
 
 /**
  * Check contrast ratio between foreground and background colors
  */
-export async function checkContrast(params: CheckContrastParams): Promise<ToolResponse | ErrorResponse> {
+export async function checkContrast(
+  params: CheckContrastParams
+): Promise<ToolResponse | ErrorResponse> {
   const startTime = Date.now();
 
   try {
@@ -62,7 +66,7 @@ export async function checkContrast(params: CheckContrastParams): Promise<ToolRe
         Date.now() - startTime,
         {
           details: { parameter: 'foreground' },
-          suggestions: ['Provide a foreground color in any supported format']
+          suggestions: ['Provide a foreground color in any supported format'],
         }
       );
     }
@@ -75,7 +79,7 @@ export async function checkContrast(params: CheckContrastParams): Promise<ToolRe
         Date.now() - startTime,
         {
           details: { parameter: 'background' },
-          suggestions: ['Provide a background color in any supported format']
+          suggestions: ['Provide a background color in any supported format'],
         }
       );
     }
@@ -90,7 +94,9 @@ export async function checkContrast(params: CheckContrastParams): Promise<ToolRe
         Date.now() - startTime,
         {
           details: { provided: params.foreground, error: fgValidation.error },
-          suggestions: ['Use a valid color format like #FF0000 or rgb(255, 0, 0)']
+          suggestions: [
+            'Use a valid color format like #FF0000 or rgb(255, 0, 0)',
+          ],
         }
       );
     }
@@ -104,7 +110,9 @@ export async function checkContrast(params: CheckContrastParams): Promise<ToolRe
         Date.now() - startTime,
         {
           details: { provided: params.background, error: bgValidation.error },
-          suggestions: ['Use a valid color format like #FFFFFF or rgb(255, 255, 255)']
+          suggestions: [
+            'Use a valid color format like #FFFFFF or rgb(255, 255, 255)',
+          ],
         }
       );
     }
@@ -118,30 +126,42 @@ export async function checkContrast(params: CheckContrastParams): Promise<ToolRe
     const standard = params.standard || 'WCAG_AA';
 
     // Check contrast
-    const contrastResult = ColorAnalyzer.checkContrast(foregroundColor, backgroundColor, textSize, standard);
+    const contrastResult = ColorAnalyzer.checkContrast(
+      foregroundColor,
+      backgroundColor,
+      textSize,
+      standard
+    );
 
     // Generate recommendations
     const recommendations: string[] = [];
-    
+
     if (!contrastResult.passes) {
-      recommendations.push('This color combination does not meet accessibility standards');
-      
+      recommendations.push(
+        'This color combination does not meet accessibility standards'
+      );
+
       if (contrastResult.ratio < 3.0) {
-        recommendations.push('Consider using colors with more contrast difference');
+        recommendations.push(
+          'Consider using colors with more contrast difference'
+        );
       }
-      
+
       // Suggest adjustments
-      if (foregroundColor.metadata?.brightness && backgroundColor.metadata?.brightness) {
+      if (
+        foregroundColor.metadata?.brightness &&
+        backgroundColor.metadata?.brightness
+      ) {
         const fgBrightness = foregroundColor.metadata.brightness;
         const bgBrightness = backgroundColor.metadata.brightness;
-        
+
         if (Math.abs(fgBrightness - bgBrightness) < 100) {
           if (fgBrightness > 127) {
             recommendations.push('Try using a darker foreground color');
           } else {
             recommendations.push('Try using a lighter foreground color');
           }
-          
+
           if (bgBrightness > 127) {
             recommendations.push('Try using a darker background color');
           } else {
@@ -159,10 +179,11 @@ export async function checkContrast(params: CheckContrastParams): Promise<ToolRe
 
     // Generate alternative combinations
     const alternativeCombinations = await generateAlternatives(
-      foregroundColor, 
-      backgroundColor, 
+      foregroundColor,
+      backgroundColor,
       textSize,
-      contrastResult.ratio
+      contrastResult.ratio,
+      standard
     );
 
     // Prepare response
@@ -178,17 +199,17 @@ export async function checkContrast(params: CheckContrastParams): Promise<ToolRe
           wcag_aaa: contrastResult.wcag_aaa,
           passes: contrastResult.passes,
         };
-        
+
         if (standard === 'APCA') {
           compliance.apca_passes = contrastResult.passes;
         }
-        
+
         return compliance;
       })(),
       recommendations,
       alternative_combinations: alternativeCombinations,
     };
-    
+
     if (contrastResult.apca_score !== undefined) {
       responseData.apca_score = contrastResult.apca_score;
     }
@@ -198,10 +219,14 @@ export async function checkContrast(params: CheckContrastParams): Promise<ToolRe
     // Generate accessibility notes
     const accessibilityNotes: string[] = [];
     if (!contrastResult.wcag_aa) {
-      accessibilityNotes.push(`Contrast ratio ${contrastResult.ratio}:1 does not meet WCAG AA standards`);
+      accessibilityNotes.push(
+        `Contrast ratio ${contrastResult.ratio}:1 does not meet WCAG AA standards`
+      );
     }
     if (contrastResult.wcag_aaa) {
-      accessibilityNotes.push(`Excellent contrast ratio ${contrastResult.ratio}:1 meets WCAG AAA standards`);
+      accessibilityNotes.push(
+        `Excellent contrast ratio ${contrastResult.ratio}:1 meets WCAG AAA standards`
+      );
     }
 
     return createSuccessResponse(
@@ -214,7 +239,6 @@ export async function checkContrast(params: CheckContrastParams): Promise<ToolRe
         recommendations: recommendations.slice(0, 5),
       }
     );
-
   } catch (error) {
     const executionTime = Date.now() - startTime;
     return createErrorResponse(
@@ -223,11 +247,14 @@ export async function checkContrast(params: CheckContrastParams): Promise<ToolRe
       `Failed to check contrast: ${error instanceof Error ? error.message : 'Unknown error'}`,
       executionTime,
       {
-        details: { 
+        details: {
           foreground: params.foreground,
-          background: params.background
+          background: params.background,
         },
-        suggestions: ['Check that both colors are in valid formats', 'Try different color formats']
+        suggestions: [
+          'Check that both colors are in valid formats',
+          'Try different color formats',
+        ],
       }
     );
   }
@@ -240,10 +267,11 @@ async function generateAlternatives(
   foreground: UnifiedColor,
   background: UnifiedColor,
   textSize: 'normal' | 'large',
-  currentRatio: number
+  currentRatio: number,
+  standard: 'WCAG_AA' | 'WCAG_AAA' | 'APCA' = 'WCAG_AA'
 ): Promise<CheckContrastResponse['alternative_combinations']> {
   const targetRatio = textSize === 'large' ? 3.0 : 4.5;
-  
+
   if (currentRatio >= targetRatio) {
     return undefined; // No alternatives needed
   }
@@ -263,25 +291,30 @@ async function generateAlternatives(
   // Generate foreground adjustments (lighter and darker versions)
   const fgHsl = foreground.hsl;
   const lightnessAdjustments = [-40, -30, -20, 20, 30, 40];
-  
+
   for (const adjustment of lightnessAdjustments) {
     const newLightness = Math.max(0, Math.min(100, fgHsl.l + adjustment));
     if (Math.abs(newLightness - fgHsl.l) < 5) continue; // Skip minimal changes
-    
+
     try {
       const adjustedFg = UnifiedColor.fromHsl(fgHsl.h, fgHsl.s, newLightness);
-      const contrastResult = ColorAnalyzer.checkContrast(adjustedFg, background, textSize);
-      
+      const contrastResult = ColorAnalyzer.checkContrast(
+        adjustedFg,
+        background,
+        textSize,
+        standard
+      );
+
       const adjustment = {
         color: adjustedFg.hex,
         contrast_ratio: contrastResult.ratio,
         passes: contrastResult.passes,
       } as any;
-      
+
       if (contrastResult.apca_score !== undefined) {
         adjustment.apca_score = contrastResult.apca_score;
       }
-      
+
       foregroundAdjustments.push(adjustment);
     } catch {
       // Skip invalid color combinations
@@ -290,25 +323,30 @@ async function generateAlternatives(
 
   // Generate background adjustments
   const bgHsl = background.hsl;
-  
+
   for (const adjustment of lightnessAdjustments) {
     const newLightness = Math.max(0, Math.min(100, bgHsl.l + adjustment));
     if (Math.abs(newLightness - bgHsl.l) < 5) continue; // Skip minimal changes
-    
+
     try {
       const adjustedBg = UnifiedColor.fromHsl(bgHsl.h, bgHsl.s, newLightness);
-      const contrastResult = ColorAnalyzer.checkContrast(foreground, adjustedBg, textSize);
-      
+      const contrastResult = ColorAnalyzer.checkContrast(
+        foreground,
+        adjustedBg,
+        textSize,
+        standard
+      );
+
       const adjustment = {
         color: adjustedBg.hex,
         contrast_ratio: contrastResult.ratio,
         passes: contrastResult.passes,
       } as any;
-      
+
       if (contrastResult.apca_score !== undefined) {
         adjustment.apca_score = contrastResult.apca_score;
       }
-      
+
       backgroundAdjustments.push(adjustment);
     } catch {
       // Skip invalid color combinations
@@ -328,7 +366,8 @@ async function generateAlternatives(
 // Tool definition for MCP registration
 export const checkContrastTool = {
   name: 'check_contrast',
-  description: 'Check color contrast compliance with WCAG accessibility standards',
+  description:
+    'Check color contrast compliance with WCAG accessibility standards',
   parameters: {
     type: 'object',
     properties: {
@@ -355,5 +394,6 @@ export const checkContrastTool = {
     },
     required: ['foreground', 'background'],
   },
-  handler: async (params: unknown) => checkContrast(params as CheckContrastParams),
+  handler: async (params: unknown) =>
+    checkContrast(params as CheckContrastParams),
 };
