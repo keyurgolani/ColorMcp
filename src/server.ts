@@ -14,7 +14,7 @@ import { toolRegistry } from './tools/index';
 import { logger } from './utils/logger';
 
 // Import tools/index to ensure all tools are registered
-import './tools/index.js';
+import './tools/index';
 
 export class ColorServer {
   private server: Server;
