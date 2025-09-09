@@ -29,6 +29,15 @@ function fixImportsInFile(filePath) {
     }
   );
 
+  // Fix side-effect imports
+  content = content.replace(
+    /import\s+['"](\.[^'"]*?)(?<!\.js)['"]/g,
+    (match, importPath) => {
+      modified = true;
+      return match.replace(importPath, importPath + '.js');
+    }
+  );
+
   // Fix dynamic imports
   content = content.replace(
     /import\s*\(\s*['"](\.[^'"]*?)(?<!\.js)['"]\s*\)/g,

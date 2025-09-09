@@ -109,8 +109,38 @@ export async function analyzeColor(
       compareColor = new UnifiedColor(params.compare_color);
     }
 
-    // Perform analysis
+    // Validate analysis types
+    const validAnalysisTypes = [
+      'brightness',
+      'temperature',
+      'contrast',
+      'accessibility',
+      'all',
+    ];
     const analysisTypes = params.analysis_types || ['all'];
+
+    for (const type of analysisTypes) {
+      if (!validAnalysisTypes.includes(type)) {
+        return createErrorResponse(
+          'analyze_color',
+          'INVALID_ANALYSIS_TYPE',
+          `Invalid analysis type: ${type}`,
+          Date.now() - startTime,
+          {
+            details: {
+              provided: type,
+              valid_types: validAnalysisTypes,
+            },
+            suggestions: [
+              'Use one of: brightness, temperature, contrast, accessibility, all',
+              'Check the analysis types documentation',
+            ],
+          }
+        );
+      }
+    }
+
+    // Perform analysis
     const analysis = ColorAnalyzer.analyzeColor(
       color,
       analysisTypes,

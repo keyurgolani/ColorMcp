@@ -44,10 +44,12 @@
   "homepage": "https://github.com/your-org/mcp-color-server#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
+    "@types/sharp": "^0.31.1",
     "chroma-js": "^3.1.2",
     "colord": "^2.9.3",
     "handlebars": "^4.7.8",
-    "joi": "^17.11.0"
+    "joi": "^17.11.0",
+    "sharp": "^0.34.3"
   },
   "devDependencies": {
     "@types/chroma-js": "^3.1.1",

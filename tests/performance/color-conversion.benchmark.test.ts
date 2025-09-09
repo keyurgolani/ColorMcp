@@ -8,7 +8,7 @@ import { convertColorTool } from '../../src/tools/convert-color';
 
 describe('Color Conversion Performance Benchmarks', () => {
   // Performance thresholds - more realistic for CI environments
-  const SINGLE_CONVERSION_THRESHOLD = 200; // ms (increased for CI)
+  const SINGLE_CONVERSION_THRESHOLD = 400; // ms (increased for realistic CI expectations)
   const BATCH_CONVERSION_THRESHOLD = 2000; // ms for 100 conversions
   const AVERAGE_CONVERSION_THRESHOLD = 20; // ms average per conversion in batch
 

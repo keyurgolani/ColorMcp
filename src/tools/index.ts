@@ -57,6 +57,11 @@ import { createPaletteHtmlTool } from './create-palette-html';
 import { createColorWheelHtmlTool } from './create-color-wheel-html';
 import { createGradientHtmlTool } from './create-gradient-html';
 
+// Import and register PNG generation tools
+import { createPalettePngTool } from './create-palette-png';
+import { createGradientPngTool } from './create-gradient-png';
+import { createColorComparisonPngTool } from './create-color-comparison-png';
+
 // Import test tool
 import { testHtmlTool } from './test-html';
 
@@ -78,6 +83,11 @@ toolRegistry.registerTool(generateHarmonyPaletteTool);
 toolRegistry.registerTool(createPaletteHtmlTool);
 toolRegistry.registerTool(createColorWheelHtmlTool);
 toolRegistry.registerTool(createGradientHtmlTool);
+
+// Register PNG generation tools
+toolRegistry.registerTool(createPalettePngTool);
+toolRegistry.registerTool(createGradientPngTool);
+toolRegistry.registerTool(createColorComparisonPngTool);
 
 // Register test tool
 toolRegistry.registerTool(testHtmlTool);
