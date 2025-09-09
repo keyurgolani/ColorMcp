@@ -52,6 +52,10 @@ import { optimizeForAccessibilityTool } from './optimize-for-accessibility';
 // Import and register palette generation tools
 import { generateHarmonyPaletteTool } from './generate-harmony-palette';
 
+// Import and register gradient generation tools
+import { generateLinearGradientTool } from './generate-linear-gradient';
+import { generateRadialGradientTool } from './generate-radial-gradient';
+
 // Import and register visualization tools
 import { createPaletteHtmlTool } from './create-palette-html';
 import { createColorWheelHtmlTool } from './create-color-wheel-html';
@@ -78,6 +82,10 @@ toolRegistry.registerTool(optimizeForAccessibilityTool);
 
 // Register palette generation tools
 toolRegistry.registerTool(generateHarmonyPaletteTool);
+
+// Register gradient generation tools
+toolRegistry.registerTool(generateLinearGradientTool);
+toolRegistry.registerTool(generateRadialGradientTool);
 
 // Register visualization tools
 toolRegistry.registerTool(createPaletteHtmlTool);

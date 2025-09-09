@@ -2,10 +2,10 @@
  * PNG color comparison visualization generation tool
  */
 
-const sharp = require('sharp');
+import sharp from 'sharp';
 import { colord, extend } from 'colord';
 import namesPlugin from 'colord/plugins/names';
-import * as Joi from 'joi';
+import Joi from 'joi';
 
 // Extend colord with names plugin
 extend([namesPlugin]);

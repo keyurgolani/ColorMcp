@@ -3,7 +3,7 @@
  */
 
 import { ToolHandler, ToolResponse, ErrorResponse } from '../types/index';
-import * as Joi from 'joi';
+import Joi from 'joi';
 
 const testHtmlSchema = Joi.object({
   message: Joi.string().default('Hello World').description('Test message'),

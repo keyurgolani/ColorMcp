@@ -7,7 +7,7 @@ import {
   HTMLGenerator,
   GradientVisualizationData,
 } from '../visualization/html-generator';
-import * as Joi from 'joi';
+import Joi from 'joi';
 
 // Parameter validation schema
 const createGradientHtmlSchema = Joi.object({

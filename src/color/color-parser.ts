@@ -4,6 +4,7 @@
 
 import { colord, extend } from 'colord';
 import namesPlugin from 'colord/plugins/names';
+import chroma from 'chroma-js';
 import { UnifiedColor } from './unified-color';
 
 // Extend colord with names plugin
@@ -270,7 +271,7 @@ export class ColorParser {
             color,
             detectedFormat: 'hex',
           };
-        } catch (error) {
+        } catch {
           continue;
         }
       }
@@ -301,7 +302,7 @@ export class ColorParser {
             color,
             detectedFormat: a !== undefined ? 'rgba' : 'rgb',
           };
-        } catch (error) {
+        } catch {
           continue;
         }
       }
@@ -332,7 +333,7 @@ export class ColorParser {
             color,
             detectedFormat: a !== undefined ? 'hsla' : 'hsl',
           };
-        } catch (error) {
+        } catch {
           continue;
         }
       }
@@ -363,7 +364,7 @@ export class ColorParser {
             color,
             detectedFormat: a !== undefined ? 'hsva' : 'hsv',
           };
-        } catch (error) {
+        } catch {
           continue;
         }
       }
@@ -405,7 +406,7 @@ export class ColorParser {
             color,
             detectedFormat: 'cmyk',
           };
-        } catch (error) {
+        } catch {
           continue;
         }
       }
@@ -427,7 +428,6 @@ export class ColorParser {
           }
 
           // Use chroma-js to convert LAB to RGB
-          const chroma = require('chroma-js');
           const rgb = chroma.lab(l, a, b).rgb();
           const color = UnifiedColor.fromRgb(rgb[0], rgb[1], rgb[2]);
 
@@ -436,7 +436,7 @@ export class ColorParser {
             color,
             detectedFormat: 'lab',
           };
-        } catch (error) {
+        } catch {
           continue;
         }
       }
@@ -474,7 +474,7 @@ export class ColorParser {
             color,
             detectedFormat: 'xyz',
           };
-        } catch (error) {
+        } catch {
           continue;
         }
       }
@@ -496,7 +496,6 @@ export class ColorParser {
           }
 
           // Use chroma-js to convert LCH to RGB
-          const chroma = require('chroma-js');
           const rgb = chroma.lch(l, c, h).rgb();
           const color = UnifiedColor.fromRgb(rgb[0], rgb[1], rgb[2]);
 
@@ -505,7 +504,7 @@ export class ColorParser {
             color,
             detectedFormat: 'lch',
           };
-        } catch (error) {
+        } catch {
           continue;
         }
       }
@@ -528,7 +527,6 @@ export class ColorParser {
 
           // Use chroma-js to convert OKLAB to RGB if available
           try {
-            const chroma = require('chroma-js');
             const rgb = chroma.oklab(l, a, b).rgb();
             const color = UnifiedColor.fromRgb(rgb[0], rgb[1], rgb[2]);
 
@@ -542,7 +540,6 @@ export class ColorParser {
             const labL = l * 100;
             const labA = a * 100;
             const labB = b * 100;
-            const chroma = require('chroma-js');
             const rgb = chroma.lab(labL, labA, labB).rgb();
             const color = UnifiedColor.fromRgb(rgb[0], rgb[1], rgb[2]);
 
@@ -552,7 +549,7 @@ export class ColorParser {
               detectedFormat: 'oklab',
             };
           }
-        } catch (error) {
+        } catch {
           continue;
         }
       }
@@ -575,7 +572,6 @@ export class ColorParser {
 
           // Use chroma-js to convert OKLCH to RGB if available
           try {
-            const chroma = require('chroma-js');
             const rgb = chroma.oklch(l, c, h).rgb();
             const color = UnifiedColor.fromRgb(rgb[0], rgb[1], rgb[2]);
 
@@ -589,7 +585,6 @@ export class ColorParser {
             const lchL = l * 100;
             const lchC = c * 100;
             const lchH = h;
-            const chroma = require('chroma-js');
             const rgb = chroma.lch(lchL, lchC, lchH).rgb();
             const color = UnifiedColor.fromRgb(rgb[0], rgb[1], rgb[2]);
 
@@ -599,7 +594,7 @@ export class ColorParser {
               detectedFormat: 'oklch',
             };
           }
-        } catch (error) {
+        } catch {
           continue;
         }
       }
@@ -626,7 +621,7 @@ export class ColorParser {
             color,
             detectedFormat: 'hwb',
           };
-        } catch (error) {
+        } catch {
           continue;
         }
       }
@@ -644,7 +639,7 @@ export class ColorParser {
           color,
           detectedFormat: 'named',
         };
-      } catch (error) {
+      } catch {
         // Fall through to failure
       }
     }
@@ -662,7 +657,7 @@ export class ColorParser {
           detectedFormat: 'auto-detected',
         };
       }
-    } catch (error) {
+    } catch {
       // Fall through to failure
     }
     return { success: false };
