@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "color-server": {
+      "command": "/opt/homebrew/bin/node",
+      "args": ["/Users/golani/PersonalProjects/ColorMcp2/dist/index.js"],
+      "env": {
+        "NODE_ENV": "development",
+        "LOG_LEVEL": "info"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "convert_color",
+        "analyze_color",
+        "generate_harmony_palette",
+        "check_contrast",
+        "create_palette_html"
+      ]
+    }
+  }
+}
