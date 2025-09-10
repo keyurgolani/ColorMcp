@@ -80,6 +80,35 @@ export interface GradientVisualizationData {
   };
 }
 
+export interface ThemePreviewVisualizationData {
+  themeColors: Record<
+    string,
+    {
+      hex: string;
+      rgb: string;
+      hsl: string;
+      name: string;
+      accessibility?: {
+        contrastRatio: number;
+        wcagAA: boolean;
+        wcagAAA: boolean;
+      };
+    }
+  >;
+  previewType: 'website' | 'mobile_app' | 'dashboard' | 'components';
+  components: string[];
+  interactive: boolean;
+  responsive: boolean;
+  theme: 'light' | 'dark' | 'auto';
+  metadata: {
+    title: string;
+    description: string;
+    timestamp: string;
+    colorCount: number;
+    previewType: string;
+  };
+}
+
 export class HTMLGenerator {
   private templates: Map<string, Handlebars.TemplateDelegate<unknown>> =
     new Map();
@@ -117,10 +146,21 @@ export class HTMLGenerator {
 
     // Helper for color luminance calculation
     Handlebars.registerHelper('textColor', (hex: string) => {
+      // Handle undefined or invalid hex values
+      if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) {
+        return '#000000'; // Default to black text
+      }
+
       // Simple luminance calculation for text color
       const r = parseInt(hex.slice(1, 3), 16);
       const g = parseInt(hex.slice(3, 5), 16);
       const b = parseInt(hex.slice(5, 7), 16);
+
+      // Handle invalid color values
+      if (isNaN(r) || isNaN(g) || isNaN(b)) {
+        return '#000000';
+      }
+
       const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
       return luminance > 0.5 ? '#000000' : '#ffffff';
     });
@@ -166,6 +206,11 @@ export class HTMLGenerator {
       const radius = (size / 2) * 0.8; // 80% of radius for positioning
       const angle = (hue - 90) * (Math.PI / 180); // Convert to radians, adjust for top position
       return size / 2 + radius * Math.sin(angle);
+    });
+
+    // Helper for checking if array includes value
+    Handlebars.registerHelper('includes', (array: string[], value: string) => {
+      return array && array.includes(value);
     });
   }
 
@@ -428,6 +473,263 @@ export class HTMLGenerator {
       'gradient-content',
       Handlebars.compile(gradientContentTemplate)
     );
+
+    // Theme preview content template
+    const themePreviewContentTemplate = `
+<div class="theme-preview-container {{previewType}}-preview" 
+     role="group" 
+     aria-label="Theme preview showing {{metadata.colorCount}} colors in {{previewType}} context">
+    
+    {{#if (eq previewType 'website')}}
+    <div class="website-mockup">
+        {{#if (includes components 'header')}}
+        <header class="mockup-header" style="background-color: {{themeColors.primary.hex}}; color: {{themeColors.text.hex}};">
+            <div class="header-content">
+                <h1 class="logo">Brand Name</h1>
+                <nav class="main-nav">
+                    <a href="#" style="color: {{themeColors.text.hex}};">Home</a>
+                    <a href="#" style="color: {{themeColors.text.hex}};">About</a>
+                    <a href="#" style="color: {{themeColors.text.hex}};">Services</a>
+                    <a href="#" style="color: {{themeColors.text.hex}};">Contact</a>
+                </nav>
+            </div>
+        </header>
+        {{/if}}
+        
+        <main class="mockup-main" style="background-color: {{themeColors.background.hex}}; color: {{themeColors.text.hex}};">
+            {{#if (includes components 'content')}}
+            <section class="hero-section" style="background-color: {{themeColors.surface.hex}};">
+                <h2>Welcome to Our Website</h2>
+                <p>This is a preview of how your theme colors look in a real website context.</p>
+                {{#if (includes components 'buttons')}}
+                <div class="button-group">
+                    <button class="btn-primary" style="background-color: {{themeColors.primary.hex}}; color: {{textColor themeColors.primary.hex}};">
+                        Primary Action
+                    </button>
+                    {{#if themeColors.secondary}}
+                    <button class="btn-secondary" style="background-color: {{themeColors.secondary.hex}}; color: {{textColor themeColors.secondary.hex}};">
+                        Secondary Action
+                    </button>
+                    {{/if}}
+                </div>
+                {{/if}}
+            </section>
+            
+            <section class="content-section">
+                <div class="content-grid">
+                    {{#if (includes components 'cards')}}
+                    <div class="card" style="background-color: {{themeColors.surface.hex}}; border-color: {{themeColors.border.hex}};">
+                        <h3>Feature Card</h3>
+                        <p>This card demonstrates how your theme colors work together in content areas.</p>
+                        {{#if themeColors.accent}}
+                        <span class="accent-text" style="color: {{themeColors.accent.hex}};">Accent Color</span>
+                        {{/if}}
+                    </div>
+                    {{/if}}
+                    
+                    {{#if (includes components 'forms')}}
+                    <div class="form-section" style="background-color: {{themeColors.surface.hex}};">
+                        <h3>Contact Form</h3>
+                        <form class="sample-form">
+                            <input type="text" placeholder="Your Name" style="border-color: {{themeColors.border.hex}}; background-color: {{themeColors.background.hex}};">
+                            <input type="email" placeholder="Your Email" style="border-color: {{themeColors.border.hex}}; background-color: {{themeColors.background.hex}};">
+                            <textarea placeholder="Your Message" style="border-color: {{themeColors.border.hex}}; background-color: {{themeColors.background.hex}};"></textarea>
+                            <button type="submit" style="background-color: {{themeColors.primary.hex}}; color: {{textColor themeColors.primary.hex}};">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                    {{/if}}
+                </div>
+            </section>
+            {{/if}}
+        </main>
+        
+        {{#if (includes components 'footer')}}
+        <footer class="mockup-footer" style="background-color: {{themeColors.surface.hex}}; color: {{themeColors.text.hex}};">
+            <p>&copy; 2024 Brand Name. All rights reserved.</p>
+        </footer>
+        {{/if}}
+    </div>
+    {{/if}}
+    
+    {{#if (eq previewType 'mobile_app')}}
+    <div class="mobile-mockup">
+        <div class="mobile-frame">
+            {{#if (includes components 'header')}}
+            <div class="mobile-header" style="background-color: {{themeColors.primary.hex}}; color: {{textColor themeColors.primary.hex}};">
+                <button class="back-button">←</button>
+                <h1>App Title</h1>
+                <button class="menu-button">☰</button>
+            </div>
+            {{/if}}
+            
+            <div class="mobile-content" style="background-color: {{themeColors.background.hex}};">
+                {{#if (includes components 'cards')}}
+                <div class="mobile-card" style="background-color: {{themeColors.surface.hex}};">
+                    <h3>Mobile Card</h3>
+                    <p style="color: {{themeColors.text.hex}};">Content optimized for mobile viewing</p>
+                    {{#if themeColors.accent}}
+                    <span class="status-badge" style="background-color: {{themeColors.accent.hex}}; color: {{textColor themeColors.accent.hex}};">
+                        Active
+                    </span>
+                    {{/if}}
+                </div>
+                {{/if}}
+                
+                {{#if (includes components 'buttons')}}
+                <div class="mobile-actions">
+                    <button class="mobile-btn-primary" style="background-color: {{themeColors.primary.hex}}; color: {{textColor themeColors.primary.hex}};">
+                        Primary Action
+                    </button>
+                    {{#if themeColors.secondary}}
+                    <button class="mobile-btn-secondary" style="background-color: {{themeColors.secondary.hex}}; color: {{textColor themeColors.secondary.hex}};">
+                        Secondary
+                    </button>
+                    {{/if}}
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+    {{/if}}
+    
+    {{#if (eq previewType 'dashboard')}}
+    <div class="dashboard-mockup">
+        {{#if (includes components 'sidebar')}}
+        <aside class="dashboard-sidebar" style="background-color: {{themeColors.surface.hex}};">
+            <div class="sidebar-header" style="background-color: {{themeColors.primary.hex}};">
+                <h2 style="color: {{textColor themeColors.primary.hex}};">Dashboard</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" style="background-color: {{themeColors.accent.hex}}; color: {{textColor themeColors.accent.hex}};">
+                    Overview
+                </a>
+                <a href="#" class="nav-item" style="color: {{themeColors.text.hex}};">Analytics</a>
+                <a href="#" class="nav-item" style="color: {{themeColors.text.hex}};">Reports</a>
+                <a href="#" class="nav-item" style="color: {{themeColors.text.hex}};">Settings</a>
+            </nav>
+        </aside>
+        {{/if}}
+        
+        <main class="dashboard-main" style="background-color: {{themeColors.background.hex}};">
+            {{#if (includes components 'header')}}
+            <header class="dashboard-header" style="background-color: {{themeColors.surface.hex}}; border-bottom-color: {{themeColors.border.hex}};">
+                <h1 style="color: {{themeColors.text.hex}};">Dashboard Overview</h1>
+                <div class="header-actions">
+                    {{#if (includes components 'buttons')}}
+                    <button style="background-color: {{themeColors.primary.hex}}; color: {{textColor themeColors.primary.hex}};">
+                        New Report
+                    </button>
+                    {{/if}}
+                </div>
+            </header>
+            {{/if}}
+            
+            {{#if (includes components 'cards')}}
+            <div class="dashboard-grid">
+                <div class="metric-card" style="background-color: {{themeColors.surface.hex}};">
+                    <h3 style="color: {{themeColors.text.hex}};">Total Users</h3>
+                    <div class="metric-value" style="color: {{themeColors.primary.hex}};">12,345</div>
+                </div>
+                <div class="metric-card" style="background-color: {{themeColors.surface.hex}};">
+                    <h3 style="color: {{themeColors.text.hex}};">Revenue</h3>
+                    <div class="metric-value" style="color: {{themeColors.success.hex}};">$45,678</div>
+                </div>
+                <div class="metric-card" style="background-color: {{themeColors.surface.hex}};">
+                    <h3 style="color: {{themeColors.text.hex}};">Conversion</h3>
+                    <div class="metric-value" style="color: {{themeColors.accent.hex}};">3.2%</div>
+                </div>
+            </div>
+            {{/if}}
+        </main>
+    </div>
+    {{/if}}
+    
+    {{#if (eq previewType 'components')}}
+    <div class="components-showcase">
+        <div class="component-grid">
+            {{#if (includes components 'buttons')}}
+            <div class="component-section">
+                <h3>Buttons</h3>
+                <div class="button-samples">
+                    <button style="background-color: {{themeColors.primary.hex}}; color: {{textColor themeColors.primary.hex}};">Primary</button>
+                    {{#if themeColors.secondary}}
+                    <button style="background-color: {{themeColors.secondary.hex}}; color: {{textColor themeColors.secondary.hex}};">Secondary</button>
+                    {{/if}}
+                    {{#if themeColors.success}}
+                    <button style="background-color: {{themeColors.success.hex}}; color: {{textColor themeColors.success.hex}};">Success</button>
+                    {{/if}}
+                    {{#if themeColors.warning}}
+                    <button style="background-color: {{themeColors.warning.hex}}; color: {{textColor themeColors.warning.hex}};">Warning</button>
+                    {{/if}}
+                    {{#if themeColors.error}}
+                    <button style="background-color: {{themeColors.error.hex}}; color: {{textColor themeColors.error.hex}};">Error</button>
+                    {{/if}}
+                </div>
+            </div>
+            {{/if}}
+            
+            {{#if (includes components 'cards')}}
+            <div class="component-section">
+                <h3>Cards</h3>
+                <div class="card-samples">
+                    <div class="sample-card" style="background-color: {{themeColors.surface.hex}}; border-color: {{themeColors.border.hex}};">
+                        <h4 style="color: {{themeColors.text.hex}};">Card Title</h4>
+                        <p style="color: {{themeColors.text.hex}};">Card content with theme colors</p>
+                    </div>
+                </div>
+            </div>
+            {{/if}}
+            
+            {{#if (includes components 'forms')}}
+            <div class="component-section">
+                <h3>Form Elements</h3>
+                <div class="form-samples">
+                    <input type="text" placeholder="Text Input" style="border-color: {{themeColors.border.hex}}; background-color: {{themeColors.background.hex}};">
+                    <select style="border-color: {{themeColors.border.hex}}; background-color: {{themeColors.background.hex}};">
+                        <option>Select Option</option>
+                    </select>
+                    <textarea placeholder="Textarea" style="border-color: {{themeColors.border.hex}}; background-color: {{themeColors.background.hex}};"></textarea>
+                </div>
+            </div>
+            {{/if}}
+        </div>
+    </div>
+    {{/if}}
+    
+    {{#if interactive}}
+    <div class="theme-controls">
+        <h3>Theme Colors</h3>
+        <div class="color-palette-display">
+            {{#each themeColors}}
+            <div class="theme-color-item" 
+                 data-color="{{hex}}"
+                 data-name="{{name}}"
+                 tabindex="0"
+                 role="button"
+                 aria-label="Theme color {{name}}: {{hex}}">
+                <div class="color-swatch" style="background-color: {{hex}};"></div>
+                <div class="color-info">
+                    <span class="color-name">{{name}}</span>
+                    <span class="color-value">{{hex}}</span>
+                    {{#if accessibility}}
+                    <span class="accessibility-badge {{accessibilityClass accessibility.wcagAA accessibility.wcagAAA}}">
+                        {{accessibilityBadge accessibility.wcagAA accessibility.wcagAAA}}
+                    </span>
+                    {{/if}}
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+</div>`;
+
+    this.templates.set(
+      'theme-preview-content',
+      Handlebars.compile(themePreviewContentTemplate)
+    );
   }
 
   public generatePaletteHTML(data: PaletteVisualizationData): string {
@@ -471,6 +773,22 @@ export class HTMLGenerator {
     return this.templates.get('base')!({
       metadata: data.metadata,
       options: { interactive: data.interactiveControls },
+      content,
+      css,
+      javascript,
+    });
+  }
+
+  public generateThemePreviewHTML(data: ThemePreviewVisualizationData): string {
+    const content = this.templates.get('theme-preview-content')!(data);
+    const css = this.generateThemePreviewCSS(data);
+    const javascript = data.interactive
+      ? this.generateThemePreviewJavaScript(data)
+      : '';
+
+    return this.templates.get('base')!({
+      metadata: data.metadata,
+      options: { theme: data.theme, interactive: data.interactive },
       content,
       css,
       javascript,
@@ -1179,9 +1497,13 @@ ${this.generateCSS()}
 (function() {
     'use strict';
     
+    let selectedSwatch = null;
+    
     // Initialize when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
         initializePaletteVisualization();
+        setupAccessibility();
+        setupCopyFunctionality();
     });
     
     function initializePaletteVisualization() {
@@ -1816,6 +2138,710 @@ ${this.generateCSS()}
             liveRegion.textContent = message;
         }
     }
+    
+})();
+`;
+  }
+
+  private generateThemePreviewCSS(
+    _data: ThemePreviewVisualizationData
+  ): string {
+    return `
+/* Theme Preview Specific Styles */
+.theme-preview-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+/* Website Preview Styles */
+.website-preview .website-mockup {
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+.mockup-header {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.main-nav {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.main-nav a {
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s;
+}
+
+.main-nav a:hover {
+    opacity: 0.8;
+}
+
+.mockup-main {
+    flex: 1;
+    padding: var(--spacing-xl);
+}
+
+.hero-section {
+    text-align: center;
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-xl);
+}
+
+.hero-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.hero-section p {
+    font-size: 1.125rem;
+    margin-bottom: var(--spacing-lg);
+    opacity: 0.9;
+}
+
+.button-group {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-primary, .btn-secondary {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.card {
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    border: 1px solid;
+    box-shadow: var(--shadow-sm);
+}
+
+.card h3 {
+    margin-bottom: var(--spacing-md);
+}
+
+.accent-text {
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.form-section {
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+}
+
+.sample-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.sample-form input,
+.sample-form textarea {
+    padding: var(--spacing-sm);
+    border: 1px solid;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+}
+
+.sample-form button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.mockup-footer {
+    padding: var(--spacing-lg);
+    text-align: center;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile Preview Styles */
+.mobile-preview .mobile-mockup {
+    display: flex;
+    justify-content: center;
+    padding: var(--spacing-lg);
+}
+
+.mobile-frame {
+    width: 320px;
+    height: 568px;
+    border: 8px solid #333;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-weight: 600;
+}
+
+.back-button, .menu-button {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.mobile-content {
+    padding: var(--spacing-md);
+    height: calc(100% - 60px);
+    overflow-y: auto;
+}
+
+.mobile-card {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.mobile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.mobile-btn-primary, .mobile-btn-secondary {
+    padding: var(--spacing-sm);
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Dashboard Preview Styles */
+.dashboard-preview .dashboard-mockup {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    min-height: 600px;
+}
+
+.dashboard-sidebar {
+    border-right: 1px solid var(--color-border);
+}
+
+.sidebar-header {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.sidebar-nav {
+    padding: var(--spacing-md) 0;
+}
+
+.nav-item {
+    display: block;
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.nav-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.nav-item.active {
+    font-weight: 600;
+}
+
+.dashboard-main {
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+    padding: var(--spacing-lg);
+}
+
+.metric-card {
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+}
+
+.metric-card h3 {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Components Preview Styles */
+.components-preview .components-showcase {
+    padding: var(--spacing-lg);
+}
+
+.component-grid {
+    display: grid;
+    gap: var(--spacing-xl);
+}
+
+.component-section h3 {
+    margin-bottom: var(--spacing-md);
+    color: var(--color-text);
+}
+
+.button-samples {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.button-samples button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.button-samples button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.card-samples {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.sample-card {
+    padding: var(--spacing-md);
+    border: 1px solid;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.sample-card h4 {
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.form-samples {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    max-width: 300px;
+}
+
+.form-samples input,
+.form-samples select,
+.form-samples textarea {
+    padding: var(--spacing-sm);
+    border: 1px solid;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+}
+
+/* Theme Controls */
+.theme-controls {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: var(--color-surface);
+    border-radius: var(--border-radius);
+}
+
+.theme-controls h3 {
+    margin-bottom: var(--spacing-md);
+    color: var(--color-text);
+}
+
+.color-palette-display {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.theme-color-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.theme-color-item:hover,
+.theme-color-item:focus {
+    box-shadow: var(--shadow-sm);
+    outline: none;
+    border-color: var(--color-focus);
+}
+
+.color-swatch {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.color-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.color-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: capitalize;
+}
+
+.color-value {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-mockup {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-sidebar {
+        order: 2;
+        border-right: none;
+        border-top: 1px solid var(--color-border);
+    }
+    
+    .header-content {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+    
+    .main-nav {
+        justify-content: center;
+    }
+    
+    .button-group {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .color-palette-display {
+        grid-template-columns: 1fr;
+    }
+}
+
+${this.generateCSS()}
+`;
+  }
+
+  private generateThemePreviewJavaScript(
+    data: ThemePreviewVisualizationData
+  ): string {
+    return `
+// Theme Preview Visualization JavaScript
+(function() {
+    'use strict';
+    
+    const themeData = ${JSON.stringify(data)};
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeThemePreview();
+        setupAccessibility();
+        setupCopyFunctionality();
+    });
+    
+    function initializeThemePreview() {
+        // Add interactive features to theme color items
+        const colorItems = document.querySelectorAll('.theme-color-item');
+        colorItems.forEach(function(item) {
+            item.addEventListener('click', function() {
+                const color = this.getAttribute('data-color');
+                const name = this.getAttribute('data-name');
+                copyColorToClipboard(color, name);
+            });
+            
+            item.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
+        
+        // Add hover effects to interactive elements
+        setupHoverEffects();
+        
+        // Create ARIA live region for announcements
+        createAriaLiveRegion();
+    }
+    
+    function setupAccessibility() {
+        // Ensure all interactive elements have proper ARIA labels
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(function(button) {
+            if (!button.getAttribute('aria-label') && button.textContent) {
+                button.setAttribute('aria-label', button.textContent.trim());
+            }
+        });
+        
+        // Add keyboard navigation for mockup elements
+        const focusableElements = document.querySelectorAll('button, [tabindex="0"]');
+        focusableElements.forEach(function(element, index) {
+            element.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    // Let default tab behavior work
+                    return;
+                }
+                
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const nextIndex = (index + 1) % focusableElements.length;
+                    focusableElements[nextIndex].focus();
+                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    const prevIndex = (index - 1 + focusableElements.length) % focusableElements.length;
+                    focusableElements[prevIndex].focus();
+                }
+            });
+        });
+    }
+    
+    function setupCopyFunctionality() {
+        // Add copy functionality to all color elements
+        const colorElements = document.querySelectorAll('[data-color]');
+        colorElements.forEach(function(element) {
+            // Add visual indicator for copyable elements
+            element.style.cursor = 'pointer';
+            element.title = 'Click to copy color value';
+        });
+    }
+    
+    function setupHoverEffects() {
+        // Add subtle hover effects to demonstrate interactivity
+        const interactiveElements = document.querySelectorAll('button, .theme-color-item, .nav-item');
+        interactiveElements.forEach(function(element) {
+            element.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-1px)';
+            });
+            
+            element.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    }
+    
+    function copyColorToClipboard(color, name) {
+        const textToCopy = color;
+        
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(function() {
+                showCopyFeedback(\`Copied \${name || 'color'}: \${color}\`);
+                announceToScreenReader(\`Copied \${name || 'color'} \${color} to clipboard\`);
+            }).catch(function(err) {
+                console.warn('Failed to copy to clipboard:', err);
+                fallbackCopyToClipboard(textToCopy, name);
+            });
+        } else {
+            fallbackCopyToClipboard(textToCopy, name);
+        }
+    }
+    
+    function fallbackCopyToClipboard(text, name) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            document.execCommand('copy');
+            showCopyFeedback(\`Copied \${name || 'color'}: \${text}\`);
+            announceToScreenReader(\`Copied \${name || 'color'} \${text} to clipboard\`);
+        } catch (err) {
+            console.warn('Fallback copy failed:', err);
+            showCopyFeedback('Failed to copy color');
+        }
+        
+        document.body.removeChild(textArea);
+    }
+    
+    function showCopyFeedback(message) {
+        // Remove any existing feedback
+        const existingFeedback = document.querySelector('.copy-feedback');
+        if (existingFeedback) {
+            existingFeedback.remove();
+        }
+        
+        const feedback = document.createElement('div');
+        feedback.className = 'copy-feedback';
+        feedback.textContent = message;
+        feedback.style.cssText = \`
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--color-primary, #2563eb);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            font-size: 14px;
+            font-weight: 500;
+            animation: slideInFadeOut 3s ease-in-out forwards;
+            pointer-events: none;
+        \`;
+        
+        document.body.appendChild(feedback);
+        
+        setTimeout(function() {
+            if (feedback.parentNode) {
+                feedback.parentNode.removeChild(feedback);
+            }
+        }, 3000);
+    }
+    
+    function createAriaLiveRegion() {
+        const liveRegion = document.createElement('div');
+        liveRegion.id = 'aria-live-region';
+        liveRegion.setAttribute('aria-live', 'polite');
+        liveRegion.setAttribute('aria-atomic', 'true');
+        liveRegion.className = 'sr-only';
+        document.body.appendChild(liveRegion);
+    }
+    
+    function announceToScreenReader(message) {
+        const liveRegion = document.getElementById('aria-live-region');
+        if (liveRegion) {
+            liveRegion.textContent = message;
+        }
+    }
+    
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = \`
+        @keyframes slideInFadeOut {
+            0% {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            15% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            85% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+        
+        .theme-color-item:focus {
+            outline: 2px solid var(--color-focus, #2563eb);
+            outline-offset: 2px;
+        }
+        
+        button:focus {
+            outline: 2px solid var(--color-focus, #2563eb);
+            outline-offset: 2px;
+        }
+        
+        .nav-item:focus {
+            outline: 2px solid var(--color-focus, #2563eb);
+            outline-offset: 2px;
+        }
+    \`;
+    document.head.appendChild(style);
     
 })();
 `;

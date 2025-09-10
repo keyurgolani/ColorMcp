@@ -60,6 +60,7 @@ import { generateRadialGradientTool } from './generate-radial-gradient';
 import { createPaletteHtmlTool } from './create-palette-html';
 import { createColorWheelHtmlTool } from './create-color-wheel-html';
 import { createGradientHtmlTool } from './create-gradient-html';
+import { createThemePreviewHtmlTool } from './create-theme-preview-html';
 
 // Import and register PNG generation tools
 import { createPalettePngTool } from './create-palette-png';
@@ -101,6 +102,7 @@ toolRegistry.registerTool(generateRadialGradientTool);
 toolRegistry.registerTool(createPaletteHtmlTool);
 toolRegistry.registerTool(createColorWheelHtmlTool);
 toolRegistry.registerTool(createGradientHtmlTool);
+toolRegistry.registerTool(createThemePreviewHtmlTool);
 
 // Register PNG generation tools
 toolRegistry.registerTool(createPalettePngTool);
