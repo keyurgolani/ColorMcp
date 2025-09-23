@@ -1,0 +1,112 @@
+{
+  "name": "mcp-color-server",
+  "version": "0.1.0",
+  "description": "A comprehensive MCP server for color manipulation, palette generation, and visualization",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc && npm run fix-imports",
+    "fix-imports": "node scripts/fix-imports.js",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "test": "npm run type-check && npm run lint && npm run format:check && npm run test:coverage:check",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:coverage:check": "jest --coverage --passWithNoTests",
+    "test:ci": "jest --config jest.ci.config.js --coverage --passWithNoTests",
+    "test:performance": "jest --testPathPattern=performance --runInBand",
+    "test:load": "jest --testPathPattern=load-test --runInBand --detectOpenHandles",
+    "test:integration": "jest --testPathPattern=integration --runInBand",
+    "test:security": "jest --testPathPattern=security --runInBand",
+    "test:all": "npm run test && npm run test:performance && npm run test:integration && npm run test:security",
+    "benchmark": "node --expose-gc dist/tests/performance/benchmark.js",
+    "lint": "eslint src tests --ext .ts",
+    "lint:fix": "eslint src tests --ext .ts --fix",
+    "format": "prettier --write src tests",
+    "format:check": "prettier --check src tests",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "docs:generate": "npx typedoc --options typedoc.json",
+    "docs:validate": "npx markdownlint docs/ README.md",
+    "security:audit": "npm audit --audit-level=moderate",
+    "security:check": "npm run security:audit && npm run test:security",
+    "version:sync": "node scripts/sync-version.js",
+    "version:check": "node scripts/analyze-test-differences.js",
+    "release:prepare": "npm run version:sync && node scripts/prepare-release.js",
+    "release:validate": "npm run release:prepare && npm run test:all",
+    "coverage:improve": "node scripts/improve-test-coverage.js",
+    "coverage:report": "npm run test:coverage && npm run coverage:improve",
+    "prepare": "husky",
+    "pre-commit": "lint-staged",
+    "pre-push": "npm test && npm run build",
+    "validate:ci": "node scripts/validate-ci-alignment.js",
+    "generate:performance-results": "node scripts/generate-performance-results.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "color",
+    "palette",
+    "design",
+    "accessibility",
+    "visualization"
+  ],
+  "author": "Keyur Golani <keyurrgolani@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/keyurgolani/ColorMcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/keyurgolani/ColorMcp/issues"
+  },
+  "homepage": "https://github.com/keyurgolani/ColorMcp#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@types/fs-extra": "^11.0.4",
+    "@types/sharp": "^0.31.1",
+    "chroma-js": "^3.1.2",
+    "colord": "^2.9.3",
+    "fs-extra": "^11.3.2",
+    "handlebars": "^4.7.8",
+    "joi": "^17.11.0",
+    "sharp": "^0.34.3"
+  },
+  "devDependencies": {
+    "@types/chroma-js": "^3.1.1",
+    "@types/jest": "^29.5.8",
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "^20.9.0",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "jsdom": "^22.1.0",
+    "lint-staged": "^16.1.6",
+    "prettier": "^3.1.0",
+    "ts-jest": "^29.1.1",
+    "tsx": "^4.6.0",
+    "typescript": "^5.3.2",
+    "typedoc": "^0.28.13",
+    "markdownlint-cli": "^0.37.0",
+    "markdown-link-check": "^3.11.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ],
+    "src/**/*.ts": [
+      "bash -c 'tsc --noEmit'"
+    ]
+  }
+}

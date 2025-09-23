@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "timestamp": "2025-09-21T16:52:56.174Z",
+  "environment": {
+    "nodeVersion": "v24.7.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "checks": {
+    "errors": 0,
+    "warnings": 1,
+    "passed": true
+  },
+  "errors": [],
+  "warnings": ["Uncommitted changes detected:"]
+}

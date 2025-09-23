@@ -1,0 +1,217 @@
+name: Performance Issue
+description: Report performance problems or optimization opportunities
+title: '[Performance]: '
+labels: ['performance', 'needs-triage']
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a performance issue! Please provide detailed information to help us investigate and optimize.
+
+  - type: dropdown
+    id: performance-type
+    attributes:
+      label: Performance Issue Type
+      description: What type of performance issue are you experiencing?
+      options:
+        - Slow Response Times
+        - High Memory Usage
+        - CPU Usage
+        - File I/O Performance
+        - Memory Leaks
+        - Concurrent Request Handling
+        - Visualization Generation
+        - Large Dataset Processing
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: affected-tools
+    attributes:
+      label: Affected Tools
+      description: Which tools are experiencing performance issues?
+      multiple: true
+      options:
+        - convert_color
+        - analyze_color
+        - generate_harmony_palette
+        - generate_linear_gradient
+        - generate_radial_gradient
+        - generate_theme
+        - check_contrast
+        - create_palette_html
+        - create_palette_png
+        - create_color_wheel_html
+        - export_css
+        - export_scss
+        - export_tailwind
+        - All tools
+        - Other
+
+  - type: textarea
+    id: performance-description
+    attributes:
+      label: Performance Issue Description
+      description: Describe the performance problem you're experiencing
+      placeholder: Describe the performance issue...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: Provide steps to reproduce the performance issue
+      placeholder: |
+        1. Call tool with parameters...
+        2. Measure response time...
+        3. Observe slow performance...
+    validations:
+      required: true
+
+  - type: textarea
+    id: tool-parameters
+    attributes:
+      label: Tool Parameters
+      description: Provide the exact parameters that cause the performance issue
+      render: json
+      placeholder: |
+        {
+          "tool": "tool_name",
+          "parameters": {
+            "param1": "value1",
+            "param2": "value2"
+          }
+        }
+
+  - type: input
+    id: response-time
+    attributes:
+      label: Actual Response Time
+      description: How long does the operation take?
+      placeholder: '5000ms, 30 seconds, etc.'
+    validations:
+      required: true
+
+  - type: input
+    id: expected-time
+    attributes:
+      label: Expected Response Time
+      description: How long should the operation take?
+      placeholder: '< 500ms, < 2 seconds, etc.'
+
+  - type: input
+    id: memory-usage
+    attributes:
+      label: Memory Usage
+      description: How much memory does the operation use?
+      placeholder: '500MB, 2GB, etc.'
+
+  - type: input
+    id: dataset-size
+    attributes:
+      label: Dataset Size
+      description: How large is the dataset you're processing?
+      placeholder: '100 colors, 1000 colors, 50MB image, etc.'
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Issue Frequency
+      description: How often does this performance issue occur?
+      options:
+        - Always
+        - Often (> 50% of the time)
+        - Sometimes (< 50% of the time)
+        - Rarely
+        - Only with specific inputs
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment-details
+    attributes:
+      label: Environment Details
+      description: Provide details about your environment
+      placeholder: |
+        - Node.js version: 
+        - OS: 
+        - Memory: 
+        - CPU: 
+        - Concurrent requests: 
+        - Load:
+    validations:
+      required: true
+
+  - type: textarea
+    id: profiling-data
+    attributes:
+      label: Profiling Data
+      description: If you have profiling data, please include it
+      render: text
+      placeholder: Paste profiling output, memory snapshots, or performance metrics...
+
+  - type: textarea
+    id: workarounds
+    attributes:
+      label: Workarounds
+      description: Have you found any workarounds for this issue?
+      placeholder: Describe any workarounds you've discovered...
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: How does this performance issue impact your use case?
+      placeholder: Describe the impact on your application or workflow...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How critical is this performance issue?
+      options:
+        - Low - Minor inconvenience
+        - Medium - Affects usability
+        - High - Significantly impacts performance
+        - Critical - Blocks usage
+    validations:
+      required: true
+
+  - type: textarea
+    id: optimization-suggestions
+    attributes:
+      label: Optimization Suggestions
+      description: Do you have any suggestions for optimization?
+      placeholder: Any ideas for improving performance...
+
+  - type: checkboxes
+    id: testing
+    attributes:
+      label: Testing
+      description: Are you willing to help test performance improvements?
+      options:
+        - label: I can test performance fixes
+        - label: I can provide additional test cases
+        - label: I can help with benchmarking
+        - label: I can provide profiling data
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have provided specific performance measurements
+          required: true
+        - label: I have provided reproduction steps
+          required: true
+        - label: I have tested with the latest version
+          required: true

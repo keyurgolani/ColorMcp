@@ -1,0 +1,189 @@
+name: Security Report
+description: Report a security vulnerability (use private reporting for sensitive issues)
+title: '[Security]: '
+labels: ['security', 'triage']
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ **IMPORTANT**: If this is a sensitive security vulnerability that could be exploited, please use GitHub's private vulnerability reporting feature instead of creating a public issue.
+
+        For non-sensitive security improvements or questions, you can use this template.
+
+  - type: checkboxes
+    id: sensitivity-check
+    attributes:
+      label: Sensitivity Check
+      description: Please confirm the nature of this security report
+      options:
+        - label: This is NOT a sensitive vulnerability that could be actively exploited
+          required: true
+        - label: I have read the docs/security.md file and understand the reporting process
+          required: true
+        - label: I understand that sensitive vulnerabilities should be reported privately
+          required: true
+
+  - type: dropdown
+    id: security-type
+    attributes:
+      label: Security Issue Type
+      description: What type of security issue is this?
+      options:
+        - Security Enhancement Request
+        - Security Best Practice Question
+        - Dependency Security Update
+        - Configuration Security Issue
+        - Documentation Security Gap
+        - Other (please specify)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity Level
+      description: How would you rate the severity?
+      options:
+        - Info - General security question or suggestion
+        - Low - Minor security improvement
+        - Medium - Security enhancement that should be addressed
+        - High - Important security issue (consider private reporting)
+        - Critical - Serious vulnerability (use private reporting)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the security issue or enhancement
+      placeholder: |
+        Provide a clear description of:
+        - What the security concern is
+        - Why it's important to address
+        - What could be improved
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected-components
+    attributes:
+      label: Affected Components
+      description: Which parts of the system are affected?
+      placeholder: |
+        List affected components:
+        - Input validation
+        - Output sanitization
+        - File processing
+        - Network communication
+        - Authentication/Authorization
+        - Dependencies
+        - Configuration
+        - etc.
+
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Current Behavior
+      description: How does the system currently behave?
+      placeholder: Describe the current implementation or behavior
+
+  - type: textarea
+    id: recommended-improvement
+    attributes:
+      label: Recommended Improvement
+      description: What improvements do you suggest?
+      placeholder: |
+        Describe your recommendations:
+        - Specific changes to make
+        - Security best practices to implement
+        - Dependencies to update
+        - Configuration changes needed
+
+  - type: textarea
+    id: impact-assessment
+    attributes:
+      label: Impact Assessment
+      description: What is the potential impact if this isn't addressed?
+      placeholder: |
+        Assess the potential impact:
+        - What could happen if this isn't fixed?
+        - Who would be affected?
+        - What data or systems could be at risk?
+
+  - type: textarea
+    id: mitigation
+    attributes:
+      label: Temporary Mitigation
+      description: Are there any temporary workarounds or mitigations?
+      placeholder: |
+        Describe any temporary measures:
+        - Configuration changes
+        - Usage restrictions
+        - Monitoring recommendations
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Any relevant security references or standards
+      placeholder: |
+        Include relevant references:
+        - CVE numbers
+        - Security advisories
+        - OWASP guidelines
+        - Industry standards
+        - Research papers
+
+  - type: checkboxes
+    id: security-areas
+    attributes:
+      label: Security Areas
+      description: Which security areas does this relate to?
+      options:
+        - label: Input validation and sanitization
+        - label: Output encoding and XSS prevention
+        - label: File upload and processing security
+        - label: Dependency vulnerabilities
+        - label: Configuration security
+        - label: Rate limiting and DoS protection
+        - label: Memory safety and resource limits
+        - label: Logging and audit trails
+        - label: Error handling and information disclosure
+        - label: Network security
+        - label: Authentication and authorization
+        - label: Cryptography and data protection
+
+  - type: textarea
+    id: testing-suggestions
+    attributes:
+      label: Testing Suggestions
+      description: How should this security improvement be tested?
+      placeholder: |
+        Suggest testing approaches:
+        - Security test cases
+        - Penetration testing scenarios
+        - Automated security scans
+        - Code review focus areas
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Can you help with this security improvement?
+      options:
+        - label: I can help implement the security fix
+        - label: I can help with security testing
+        - label: I can help with security documentation
+        - label: I can provide security review feedback
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+
+        **Remember**: For sensitive security vulnerabilities, please use GitHub's private vulnerability reporting feature or email security@mcp-color-server.org
+
+        Thank you for helping keep MCP Color Server secure! 🔒

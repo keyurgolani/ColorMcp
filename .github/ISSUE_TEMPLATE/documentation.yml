@@ -1,0 +1,143 @@
+name: Documentation Issue
+description: Report missing, incorrect, or unclear documentation
+title: '[Docs]: '
+labels: ['documentation', 'needs-triage']
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve our documentation! Please provide details about the documentation issue.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation needs attention?
+      options:
+        - API Reference
+        - Getting Started Guide
+        - Tool Documentation
+        - Examples
+        - README
+        - Contributing Guidelines
+        - Code Comments
+        - Error Messages
+        - Performance Guide
+        - Security Guide
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What kind of documentation issue is this?
+      options:
+        - Missing Documentation
+        - Incorrect Information
+        - Unclear Explanation
+        - Outdated Content
+        - Broken Links
+        - Formatting Issues
+        - Typos/Grammar
+        - Missing Examples
+        - Accessibility Issues
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Documentation Location
+      description: Where is the documentation issue located?
+      placeholder: 'docs/api-reference.md, README.md, etc.'
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current Content
+      description: What does the current documentation say? (copy/paste the relevant section)
+      placeholder: Paste the current documentation content here...
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue Description
+      description: Describe what's wrong with the current documentation
+      placeholder: Explain what's missing, incorrect, or unclear...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: Suggested Improvement
+      description: How should the documentation be improved?
+      placeholder: Describe your suggested changes or additions...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: What were you trying to accomplish when you encountered this issue?
+      placeholder: Describe what you were trying to do...
+
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Target Audience
+      description: Who would benefit most from this documentation improvement?
+      options:
+        - New Users
+        - Experienced Users
+        - Developers
+        - Contributors
+        - All Users
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples-needed
+    attributes:
+      label: Examples Needed
+      description: What examples would help clarify this documentation?
+      placeholder: Describe what examples would be helpful...
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context about this documentation issue
+      placeholder: Any additional information...
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Are you interested in helping improve this documentation?
+      options:
+        - label: I would like to submit a pull request to fix this
+        - label: I can help review proposed changes
+        - label: I can provide additional examples
+        - label: I can help with testing the documentation
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have provided specific details about the documentation issue
+          required: true
+        - label: I have suggested concrete improvements
+          required: true

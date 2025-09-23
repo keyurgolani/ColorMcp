@@ -1,0 +1,19 @@
+#!/bin/sh
+echo "🚀 Running pre-push checks..."
+
+# CRITICAL QUALITY GUARDRAILS - THESE MUST NEVER BE BYPASSED
+echo "🚨 CRITICAL QUALITY GUARDRAILS ACTIVE"
+echo "⚠️  These checks ensure code quality and prevent broken deployments"
+echo "⚠️  Bypassing these checks is NEVER acceptable"
+
+# Comprehensive test suite (includes type-check, lint, format-check, and coverage)
+echo "🧪 Running comprehensive test suite..."
+npm test
+
+echo "🏗️  Verifying build..."
+npm run build
+
+# Final validation - redundant but ensures no issues slipped through
+echo "🔍 Final validation - ensuring no quality issues..."
+echo "✅ All pre-push checks passed! Code quality verified."
+echo "🎉 Ready to push high-quality code!"

@@ -1,0 +1,73 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint", "prettier"],
+  "extends": ["eslint:recommended", "prettier"],
+  "rules": {
+    "prettier/prettier": "error",
+    "prefer-const": "error",
+    "no-var": "error",
+    "no-console": "warn",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_" }
+    ],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "no-case-declarations": "off"
+  },
+  "env": {
+    "node": true,
+    "es2022": true
+  },
+  "overrides": [
+    {
+      "files": ["tests/**/*.ts"],
+      "env": {
+        "jest": true
+      },
+      "rules": {
+        "no-console": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    },
+    {
+      "files": ["**/background-controller.ts", "**/background-controls.ts"],
+      "env": {
+        "browser": true,
+        "node": false
+      },
+      "globals": {
+        "NodeListOf": "readonly",
+        "HTMLElement": "readonly",
+        "HTMLButtonElement": "readonly",
+        "HTMLInputElement": "readonly",
+        "Document": "readonly",
+        "Window": "readonly",
+        "KeyboardEvent": "readonly"
+      },
+      "rules": {
+        "no-console": "warn",
+        "@typescript-eslint/no-explicit-any": "warn"
+      }
+    },
+    {
+      "files": ["tests/**/background-*.test.ts"],
+      "env": {
+        "jest": true,
+        "browser": true,
+        "node": true
+      },
+      "rules": {
+        "no-console": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ]
+}
